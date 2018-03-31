@@ -10,7 +10,7 @@ if (NOT CURSES_FOUND)
 endif()
 
 
-set(SRC main.cpp)
+set(SRC main.cpp cui.cpp menu.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC})
 

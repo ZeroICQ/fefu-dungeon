@@ -1,7 +1,15 @@
-#include <iostream>
+#include <exception>
+#include "cui.h"
+#include <ncurses.h>
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+    try {
+        cui::Ui ui;
+        ui.show_menu();
+    } catch (const std::exception& e) {
+        endwin();
+    }
+
     return 0;
 }
