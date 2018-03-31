@@ -14,8 +14,12 @@ public:
     //ASK: что делать?
     Menu(const std::string &title, const std::vector<std::string> &entries, int height = 10, int width = 80)
             : title_(title), entries_(entries), height_(height), width_(width),
-              selected_(entries.size() > 1 ? 0 : -1) {}
+              selected_(entries.size() > 1 ? 0 : -1) {
 
+        menu_window_ = newwin(height_, width_, center_y()-height_/2, center_x()-width_/2);
+    }
+
+    ~Menu();
     int show();
 
 private:
@@ -24,6 +28,7 @@ private:
     int height_;
     int width_;
     int selected_;
+    WINDOW *menu_window_;
 
     int center_x() const { return COLS / 2; }
     int center_y() const { return LINES / 2; }
@@ -36,11 +41,10 @@ private:
 class MainMenu: public Menu
 {
 public:
+    //ASK: куда положпить список?
     MainMenu() : Menu("Main Menu", {"Start game", "Exit"}) {};
-private:
-//    std::vector<std::string> predefined_entries = {"Start game", "Exit"};
-//    std::vector<std::string> predefined_entries_;
+    //TODO: подумать
+    enum Actions{start, exit};
 };
 
 }//namespace cui
-

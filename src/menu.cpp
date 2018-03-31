@@ -1,26 +1,31 @@
 #include <ncurses.h>
 #include "menu.h"
 
+
+cui::Menu::~Menu()
+{
+    delwin(menu_window_);
+}
+
 int cui::Menu::show()
 {
-    WINDOW *menu_window = newwin(height_, width_, center_y()-height_/2, center_x()-width_/2);
-    box(menu_window, 0, 0);
+    box(menu_window_, 0, 0);
 
-    print_title(menu_window);
+    print_title(menu_window_);
 
     bool exit = false;
 
     while (!exit) {
         for (int i = 0; i < (int) entries_.size(); i++) {
             if (selected_ == i) {
-                wattron(menu_window, WA_REVERSE);
+                wattron(menu_window_, WA_REVERSE);
             }
 
-            mvwprintw(menu_window, 1 + i, 1, entries_[i].c_str());
-            wattroff(menu_window, A_REVERSE);
+            mvwprintw(menu_window_, 1 + i, 1, entries_[i].c_str());
+            wattroff(menu_window_, A_REVERSE);
         }
 
-        wrefresh(menu_window);
+        wrefresh(menu_window_);
         int c;
         switch ((c = getch())) {
             case KEY_F(1):
@@ -58,9 +63,9 @@ void cui::Menu::select_next()
 }
 
 void cui::Menu::select_prev()
+
 {
     if (selected_> 0) {
         selected_--;
     }
 }
-

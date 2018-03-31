@@ -15,7 +15,19 @@ void cui::Ui::show_menu()
     initialize();
     MainMenu main_menu;
 
-    main_menu.show();
+    int choice = -1;
+
+    while ((choice = main_menu.show()) > -1) {
+        switch (choice) {
+            case MainMenu::Actions::start:
+                break;
+            case MainMenu::Actions::exit:
+                return;
+            default:
+                break;
+        }
+    }
+
 }
 
 void cui::Ui::initialize() const
