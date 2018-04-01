@@ -4,12 +4,8 @@
 
 int main()
 {
-    try {
-        cui::Ui ui;
-        ui.show_menu();
-    } catch (const std::exception& e) {
-        endwin();
-    }
+    cui::Ui ui;
+    ui.show_menu();
 
     return 0;
 }

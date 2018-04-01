@@ -1,5 +1,4 @@
 #include(CodeCoverage)
-
 SET(GCC_COMPILE_FLAGS "-Wall -pedantic")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COMPILE_FLAGS}")
 
@@ -10,7 +9,7 @@ if (NOT CURSES_FOUND)
 endif()
 
 
-set(SRC main.cpp cui.cpp menu.cpp)
+set(SRC main.cpp cui.cpp menu.cpp game.cpp actors.cpp game.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC})
 

@@ -12,6 +12,7 @@ public:
 
 private:
     void initialize() const;
+    void start_game() const;
 };
 
 }//namespace cui
