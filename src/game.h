@@ -33,7 +33,6 @@ public:
     ~Level();
 
     const std::vector<std::vector<MapCell*>>& get_map() { return map_cells_;};
-    const std::vector<const Actor*> get_playable();
 private:
     std::vector<std::vector<MapCell*>> map_cells_;
 };

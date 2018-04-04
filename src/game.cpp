@@ -33,19 +33,6 @@ game::Level::~Level()
     map_cells_.clear();
 }
 
-const vector<const game::Actor*> game::Level::get_playable()
-{
-    vector<const game::Actor*> playable;
-    for (const auto& line : map_cells_) {
-            for (const auto& cell : line) {
-                if (cell->actor().is_playable()) {
-                    playable.push_back(&cell->actor());
-                }
-            }
-    }
-    return playable;
-}
-
 game::MapCell::~MapCell()
 {
     delete &actor_;
@@ -60,7 +47,7 @@ game::Game::Game()
             "#           ###########                                           #",
             "#                                                                 #",
             "#                                                                 #",
-            "#            S                                                    #",
+            "#                                                                 #",
             "#                                                                 #",
             "#                                                                 #",
             "#                                                                 #",
@@ -104,8 +91,5 @@ game::Game::~Game()
 
 game::GameStatus game::Game::make_turn(game::GameControls control)
 {
-    for (auto& playable : level_->get_playable()) {
-        move
-    }
     return GameStatus::in_progress;
 }

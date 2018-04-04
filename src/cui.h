@@ -7,7 +7,6 @@ namespace cui {
 class Ui
 {
 public:
-    //ASK: why default?
     Ui() = default;
     ~Ui();
 

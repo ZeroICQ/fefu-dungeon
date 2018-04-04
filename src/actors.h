@@ -17,7 +17,6 @@ public:
     virtual void move() = 0;
 
     char map_icon() const { return map_icon_; }
-    virtual bool is_playable() const { return false; }
 protected:
     int y_;
     int x_;

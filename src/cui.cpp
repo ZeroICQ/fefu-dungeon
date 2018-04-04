@@ -58,14 +58,6 @@ void cui::Ui::start_game() const
     game::GameControls player_selection;
 
     do {
-        //update frame
-        for (int i = 0; i < (int) game_level.size(); i++) {
-            for (int j = 0; j < (int) game_level[i].size(); j++) {
-                mvwaddch(game_window,i,j, (uint)game_level[i][j]->floorActor().map_icon());
-                mvwaddch(game_window,i,j, (uint)game_level[i][j]->actor().map_icon());
-            }
-        }
-
         switch (getch()) {
             case 's':
             case KEY_DOWN:
@@ -87,8 +79,6 @@ void cui::Ui::start_game() const
 
         update_game_frame(game_window, game_level);
     } while(new_game.make_turn(player_selection) != game::GameStatus::stop);
-
-    wrefresh(game_window);
 
     wclear(game_window);
     wrefresh(game_window);
