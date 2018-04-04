@@ -8,14 +8,9 @@
 
 using game::Game;
 
-cui::Ui::~Ui()
-{
-    endwin();
-}
-
 void cui::Ui::show_menu()
 {
-    initialize();
+    initialize_curses();
     MainMenu main_menu;
 
     int choice = -1;
@@ -23,10 +18,8 @@ void cui::Ui::show_menu()
     while ((choice = main_menu.show()) > -1) {
         switch (choice) {
             case MainMenu::Actions::start:
-                while (true) {
-
-                    start_game();
-                }
+                main_menu.clear();
+                start_game();
                 break;
             case MainMenu::Actions::exit:
                 return;
@@ -37,7 +30,12 @@ void cui::Ui::show_menu()
 
 }
 
-void cui::Ui::initialize() const
+cui::Ui::~Ui()
+{
+    endwin();
+}
+
+void cui::Ui::initialize_curses() const
 {
     initscr();
     cbreak();
@@ -49,12 +47,61 @@ void cui::Ui::initialize() const
 
 void cui::Ui::start_game() const
 {
-    while (1) {
-        Game new_game;
+    WINDOW *game_window;
+
+    Game new_game;
+
+    auto game_level = new_game.get_level();
+    game_window = newwin((int) game_level.size(), (int) game_level[0].size(), 0, 0);
+
+    update_game_frame(game_window, game_level);
+    game::GameControls player_selection;
+
+    do {
+        //update frame
+        for (int i = 0; i < (int) game_level.size(); i++) {
+            for (int j = 0; j < (int) game_level[i].size(); j++) {
+                mvwaddch(game_window,i,j, (uint)game_level[i][j]->floorActor().map_icon());
+                mvwaddch(game_window,i,j, (uint)game_level[i][j]->actor().map_icon());
+            }
+        }
+
+        switch (getch()) {
+            case 's':
+            case KEY_DOWN:
+                player_selection = game::GameControls::down;
+                break;
+            case 'a':
+            case KEY_LEFT:
+                player_selection = game::GameControls::left;
+                break;
+            case 'w':
+            case KEY_UP:
+                player_selection = game::GameControls::up;
+            case 'd':
+            case KEY_RIGHT:
+                player_selection = game::GameControls::right;
+            default:
+                break;
+        }
+
+        update_game_frame(game_window, game_level);
+    } while(new_game.make_turn(player_selection) != game::GameStatus::stop);
+
+    wrefresh(game_window);
+
+    wclear(game_window);
+    wrefresh(game_window);
+    delwin(game_window);
+}
+
+void cui::Ui::update_game_frame(WINDOW* game_window, std::vector<std::vector<game::MapCell*>>& game_level) const
+{
+    for (int i = 0; i < (int) game_level.size(); i++) {
+        for (int j = 0; j < (int) game_level[i].size(); j++) {
+            mvwaddch(game_window,i,j, (uint)game_level[i][j]->floorActor().map_icon());
+            mvwaddch(game_window,i,j, (uint)game_level[i][j]->actor().map_icon());
+        }
     }
-//    new_game.start();
-//
-//    while(new_game.send_control(getch()) != 0) {
-//        new_game.start();
-//    }
+    wrefresh(game_window);
 }

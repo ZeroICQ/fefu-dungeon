@@ -2,6 +2,13 @@
 #include "menu.h"
 
 
+cui::Menu::Menu(const std::string &title, const std::vector<std::string> &entries, int height, int width)
+        : title_(title), entries_(entries), height_(height), width_(width),
+          selected_(entries.size() > 1 ? 0 : -1)
+{
+    menu_window_ = newwin(height_, width_, center_y()-height_/2, center_x()-width_/2);
+}
+
 cui::Menu::~Menu()
 {
     delwin(menu_window_);
@@ -26,8 +33,8 @@ int cui::Menu::show()
         }
 
         wrefresh(menu_window_);
-        int c;
-        switch ((c = getch())) {
+
+        switch (getch()) {
             case KEY_F(1):
             case 'e':
                 return -1;

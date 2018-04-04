@@ -4,54 +4,108 @@
 
 using std::vector;
 
-game::Level::Level(const vector<char> &sketch, int width)
+game::Level::Level(const std::vector<std::string>& map_sketch, const std::vector<std::string>& floor_map_sketch)
 {
-    ActorFactory factory;
+    ActorFactory actor_factory;
+    FloorActorFactory floor_factory;
+    auto width = static_cast<int>(map_sketch[0].size());
 
-    cells.reserve(sketch.size() / width + 1);
+    map_cells_.reserve(map_sketch.size() / width + 1);
 
-    for (int i = 0; i < (int) sketch.size(); i++) {
-        auto y = i / width;
-        auto x = i - y * width;
-
-        if (x == 0) {
-            cells.emplace_back();
-            cells[y].reserve(static_cast<unsigned long>(width));
+    for (int y = 0; y < (int) map_sketch.size(); y++) {
+        map_cells_.emplace_back();
+        map_cells_[y].reserve(static_cast<unsigned long>(width));
+        for (int x = 0; x < width; x++) {
+            map_cells_[y].push_back(new MapCell(
+                    *actor_factory.create(map_sketch[y][x], y, x),
+                    *floor_factory.create(floor_map_sketch[y][x], y, x)));
         }
-        cells[y].push_back(new MapCell(*factory.create(sketch[i], y, x), *new Floor(y,x)));
     }
 }
 
 game::Level::~Level()
 {
-    for (auto &line : cells) {
+    for (auto &line : map_cells_) {
         for (auto &cell : line) {
             delete cell;
         }
     }
-    cells.clear();
+    map_cells_.clear();
+}
+
+const vector<const game::Actor*> game::Level::get_playable()
+{
+    vector<const game::Actor*> playable;
+    for (const auto& line : map_cells_) {
+            for (const auto& cell : line) {
+                if (cell->actor().is_playable()) {
+                    playable.push_back(&cell->actor());
+                }
+            }
+    }
+    return playable;
 }
 
 game::MapCell::~MapCell()
 {
-    delete &object_;
+    delete &actor_;
     delete &floor_;
 }
 
 game::Game::Game()
 {
-    const std::vector<char> sample_map = {
-            '#', '#', '#', '#', '#',
-            '#', ' ', ' ', ' ', '#',
-            '#', ' ', ' ', ' ', '#',
-            '#', ' ', ' ', ' ', '#',
-            '#', ' ', ' ', ' ', '#',
-            '#', '#', '#', '#', '#'};
+    const std::vector<std::string> map = {
+            "###################################################################",
+            "#                                                                 #",
+            "#           ###########                                           #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#            S                                                    #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                             #####################               #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "#                                                                 #",
+            "###################################################################"};
 
-    level_ = new Level(sample_map, 5);
+    const std::vector<std::string> floor_map = {
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   ",
+            "                                                                   "};
+
+    level_ = new Level(map, floor_map);
 }
 
 game::Game::~Game()
 {
     delete level_;
+}
+
+game::GameStatus game::Game::make_turn(game::GameControls control)
+{
+    for (auto& playable : level_->get_playable()) {
+        move
+    }
+    return GameStatus::in_progress;
 }

@@ -12,15 +12,11 @@ class Menu
 {
 public:
     //ASK: что делать?
-    Menu(const std::string &title, const std::vector<std::string> &entries, int height = 10, int width = 80)
-            : title_(title), entries_(entries), height_(height), width_(width),
-              selected_(entries.size() > 1 ? 0 : -1) {
-
-        menu_window_ = newwin(height_, width_, center_y()-height_/2, center_x()-width_/2);
-    }
-
+    Menu(const std::string& title, const std::vector<std::string>& entries, int height = 10, int width = 80);
     ~Menu();
+
     int show();
+    void clear() { wclear(menu_window_); wrefresh(menu_window_); }
 
 private:
     std::string title_;

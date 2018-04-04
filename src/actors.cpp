@@ -3,32 +3,56 @@
 
 using std::vector;
 
-game::ActorFactory::ActorFactory()
-{
-    //leak?
-    vector<Actor> object_actors = {
-            Wall(),
-    };
 
-    for (auto const& actor : object_actors) {
-        add_actor(actor, actor.map_icon());
-//        delete &actor;//ASK: WHY SIGSEGV????????//
-    }
+template<class T>
+template<class G>
+bool game::Factory<T>::add_actor(G actor, char icon)
+{
+    constructors_[icon] = [](int y, int x){return new G(y, x);};
+    return true;
 }
 
 template<class T>
-bool game::ActorFactory::add_actor(T actor, char icon)
+T *game::Factory<T>::create(char icon, int y, int x)
 {
-    constructors_[icon] = [](int y, int x){return new T(y, x);};
-    return true;
+    if (!constructors_.count(icon)) {
+        return nullptr;
+    }
+    return constructors_[icon](y, x);
+}
+
+game::ActorFactory::ActorFactory()
+{
+    real_factory_.add_actor(Wall(), Wall().map_icon());
+    real_factory_.add_actor(MainCharActor(), MainCharActor().map_icon());
+    real_factory_.add_actor(VoidActor(), VoidActor().map_icon());
+}
+
+game::FloorActorFactory::FloorActorFactory()
+{
+    //ASK: optimize?
+    real_factory_.add_actor(EmptyFloor(), EmptyFloor().map_icon());
 }
 
 game::Actor* game::ActorFactory::create(char icon, int y, int x)
 {
-    if (!constructors_.count(icon)) {
-        return new Actor(y, x);//empty
+    auto actor = real_factory_.create(icon, y, x);
+    if (actor == nullptr) {
+        return new VoidActor(y, x);
     }
-
-    return constructors_[icon](y, x);
+    return actor;
 }
 
+game::FloorActor *game::FloorActorFactory::create(char icon, int y, int x)
+{
+    auto actor = real_factory_.create(icon, y, x);
+    if (actor == nullptr) {
+        return new FloorActor(y, x);
+    }
+    return actor;
+}
+
+void game::FloorActor::move(game::GameControls control)
+{
+
+}
