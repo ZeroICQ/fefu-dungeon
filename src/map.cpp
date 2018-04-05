@@ -10,27 +10,24 @@ game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map
 {
     ActorFactory actor_factory;
     FloorActorFactory floor_factory;
-    BaseFactory<Actor> base;
-    base.create('s', 2, 2);
-    actor_factory.create('S', 2, 3);
-//    auto map_sketch_size = static_cast<int>(map_sketch.size());
-//
-//    auto cols = static_cast<int>(map_sketch.front().size());
-//    auto rows = static_cast<int>(map_sketch.size()) / cols
-//                + (map_sketch_size % cols > 0 ? 1 : 0);
-//
-//    map_cells_.reserve(static_cast<ulong>(rows));
-//
-//    for (int row = 0; row < rows; row++) {
-//        map_cells_.emplace_back();
-//        map_cells_.back().reserve(static_cast<unsigned long>(cols));
-//        for (int col = 0; col < cols; col++) {
-//            map_cells_.back().emplace_back(new MapCell(
-//                        actor_factory.create(map_sketch[row][col], row, col),
-//                        floor_factory.create(map_sketch[row][col], row, col)
-//                    ));
-//        }
-//    }
+    auto map_sketch_size = static_cast<int>(map_sketch.size());
+
+    auto cols = static_cast<int>(map_sketch.front().size());
+    auto rows = static_cast<int>(map_sketch.size());
+                + (map_sketch_size % cols > 0 ? 1 : 0);
+
+    map_cells_.reserve(static_cast<ulong>(rows));
+
+    for (int row = 0; row < rows; row++) {
+        map_cells_.emplace_back();
+        map_cells_.back().reserve(static_cast<unsigned long>(cols));
+        for (int col = 0; col < cols; col++) {
+            map_cells_.back().emplace_back(new MapCell(
+                        actor_factory.create(map_sketch[row][col], row, col),
+                        floor_factory.create(map_sketch[row][col], row, col)
+                    ));
+        }
+    }
 
 }
 
