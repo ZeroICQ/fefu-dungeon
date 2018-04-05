@@ -14,7 +14,7 @@ game::Game::Game()
             "#                                                                 #",
             "#                                                                 #",
             "#                                                                 #",
-            "#                                                                 #",
+            "#                                  S                              #",
             "#                                                                 #",
             "#                                                                 #",
             "#                                                                 #",
@@ -52,5 +52,10 @@ game::Game::Game()
 
 game::GameStatus game::Game::make_turn(game::GameControls control)
 {
+    for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
+        //TODO: why modify if const
+        map_iterator->get_item()->actor()->move(control);
+    }
+
     return GameStatus::in_progress;
 }

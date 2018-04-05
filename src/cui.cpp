@@ -81,8 +81,9 @@ void cui::Ui::start_game() const
                 break;
         }
 
+        current_game.make_turn(player_selection);
         update_game_frame(game_window, current_game);
-    } while(!exit_game && current_game.make_turn(player_selection) != game::GameStatus::stop);
+    } while(!exit_game);
 
     wclear(game_window);
     wrefresh(game_window);
@@ -98,13 +99,4 @@ void cui::Ui::update_game_frame(WINDOW* game_window, const Game& game) const
         mvwaddch(game_window, cur_item->actor()->row(), cur_item->actor()->col(), static_cast<uint>(cur_item->actor()->map_icon()));
     }
     wrefresh(game_window);
-
-
-//    for (int i = 0; i < (int) game_level.size(); i++) {
-//        for (int j = 0; j < (int) game_level[i].size(); j++) {
-//            mvwaddch(game_window,i,j, (uint)game_level[i][j]->floorActor().map_icon());
-//            mvwaddch(game_window,i,j, (uint)game_level[i][j]->actor().map_icon());
-//        }
-//    }
-//    wrefresh(game_window);
 }

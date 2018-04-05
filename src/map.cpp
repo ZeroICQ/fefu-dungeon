@@ -10,11 +10,10 @@ game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map
 {
     ActorFactory actor_factory;
     FloorActorFactory floor_factory;
-    auto map_sketch_size = static_cast<int>(map_sketch.size());
+//    auto map_sketch_size = static_cast<int>(map_sketch.size());
 
     auto cols = static_cast<int>(map_sketch.front().size());
-    auto rows = static_cast<int>(map_sketch.size())
-                + (map_sketch_size % cols > 0 ? 1 : 0);
+    auto rows = static_cast<int>(map_sketch.size());
 
     map_cells_.reserve(static_cast<ulong>(rows));
 

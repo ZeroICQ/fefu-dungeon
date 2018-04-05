@@ -38,3 +38,43 @@ game::FloorActorFactory::FloorActorFactory()
 // так делают?
 template class game::BaseFactory<game::Actor>;
 template class game::BaseFactory<game::FloorActor>;
+
+void game::MainCharActor::move(game::GameControls control)
+{
+    switch (control) {
+        case GameControls::move_up:
+            move_up();
+            break;
+        case GameControls::move_right:
+            move_right();
+            break;
+        case GameControls::move_down:
+            move_down();
+            break;
+        case GameControls::move_left:
+            move_left();
+            break;
+        default:
+            break;
+    }
+}
+
+void game::ActiveActor::move_up()
+{
+    row_ -= 1;
+}
+
+void game::ActiveActor::move_right()
+{
+    col_ += 1;
+}
+
+void game::ActiveActor::move_down()
+{
+    row_ += 1;
+}
+
+void game::ActiveActor::move_left()
+{
+    col_ -= 1;
+}
