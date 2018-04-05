@@ -38,7 +38,7 @@ class MainMenu: public Menu
 {
 public:
     //ASK: куда положпить список?
-    MainMenu() : Menu("Main Menu", {"Start game", "Exit"}) {};
+    MainMenu() : Menu("Main Menu", {"Start game", "Exit"}) {}
     //TODO: подумать
     enum Actions{start, exit};
 };

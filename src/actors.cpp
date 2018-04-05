@@ -6,9 +6,9 @@ using std::vector;
 
 template<class T>
 template<class G>
-bool game::Factory<T>::add_actor(G actor, char icon)
+bool game::Factory<T>::add_actor()
 {
-    constructors_[icon] = [](int y, int x){return new G(y, x);};
+    constructors_[G().map_icon()] = [](int y, int x){return new G(y, x);};
     return true;
 }
 
@@ -23,9 +23,9 @@ T *game::Factory<T>::create(char icon, int y, int x)
 
 game::ActorFactory::ActorFactory()
 {
-    real_factory_.add_actor(Wall(), Wall().map_icon());
-    real_factory_.add_actor(MainCharActor(), MainCharActor().map_icon());
-    real_factory_.add_actor(VoidActor(), VoidActor().map_icon());
+    real_factory_.add_actor<Wall>();
+    real_factory_.add_actor<MainCharActor>();
+    real_factory_.add_actor<VoidActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()

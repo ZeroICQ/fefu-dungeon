@@ -57,7 +57,6 @@ public:
 class Wall : public Actor
 {
 public:
-    Wall() : Wall(0,0) {}
     Wall(int y, int x) : Actor(y, x, '#') {}
 
 };
@@ -76,7 +75,7 @@ class Factory
 {
 public:
     template <class G>
-    bool add_actor(G actor, char icon);
+    bool add_actor();
     //can return nullptr
     T* create(char icon, int y, int x);
 private:
