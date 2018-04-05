@@ -2,57 +2,33 @@
 #include "actors.h"
 
 using std::vector;
+using std::shared_ptr;
 
 
-template<class T>
-template<class G>
-bool game::Factory<T>::add_actor()
+template<class BaseT>
+template<class ActorT>
+void game::BaseFactory<BaseT>::add_actor()
 {
-    constructors_[G().map_icon()] = [](int y, int x){return new G(y, x);};
-    return true;
+    constructors_[ActorT().map_icon()] = [](int row, int col){return new ActorT(row, col);};
 }
 
-template<class T>
-T *game::Factory<T>::create(char icon, int y, int x)
+template<class BaseT>
+shared_ptr<BaseT> game::BaseFactory<BaseT>::create(char icon, int row, int col)
 {
     if (!constructors_.count(icon)) {
-        return nullptr;
+        return shared_ptr<BaseT>(nullptr);
     }
-    return constructors_[icon](y, x);
+    return shared_ptr<BaseT>(constructors_[icon](row, col));
 }
 
 game::ActorFactory::ActorFactory()
 {
-    real_factory_.add_actor<Wall>();
-    real_factory_.add_actor<MainCharActor>();
-    real_factory_.add_actor<VoidActor>();
+    add_actor<Wall>();
+    add_actor<MainCharActor>();
+    add_actor<EmptyActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
 {
-    //ASK: optimize?
-    real_factory_.add_actor(EmptyFloor(), EmptyFloor().map_icon());
-}
-
-game::Actor* game::ActorFactory::create(char icon, int y, int x)
-{
-    auto actor = real_factory_.create(icon, y, x);
-    if (actor == nullptr) {
-        return new VoidActor(y, x);
-    }
-    return actor;
-}
-
-game::FloorActor *game::FloorActorFactory::create(char icon, int y, int x)
-{
-    auto actor = real_factory_.create(icon, y, x);
-    if (actor == nullptr) {
-        return new FloorActor(y, x);
-    }
-    return actor;
-}
-
-void game::FloorActor::move(game::GameControls control)
-{
-
+    add_actor<EmptyFloor>();
 }

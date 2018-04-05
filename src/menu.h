@@ -11,7 +11,6 @@ namespace cui {
 class Menu
 {
 public:
-    //ASK: что делать?
     Menu(const std::string& title, const std::vector<std::string>& entries, int height = 10, int width = 80);
     ~Menu();
 
@@ -39,7 +38,6 @@ class MainMenu: public Menu
 public:
     //ASK: куда положпить список?
     MainMenu() : Menu("Main Menu", {"Start game", "Exit"}) {}
-    //TODO: подумать
     enum Actions{start, exit};
 };
 

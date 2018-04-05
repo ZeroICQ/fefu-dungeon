@@ -4,49 +4,21 @@
 #include <vector>
 #include <string>
 #include "actors.h"
+#include "map.h"
 
 namespace game {
 
 enum class GameStatus {in_progress, stop};
-
-enum class GameControls {up, down, left, right};
-
-class MapCell
-{
-public:
-    MapCell(Actor& actor, FloorActor& floor) : actor_(actor), floor_(floor) {}
-    ~MapCell();
-
-    const Actor& actor() { return actor_; }
-    const FloorActor& floorActor() { return floor_; }
-
-private:
-    Actor& actor_;
-    FloorActor& floor_;
-
-};
-
-class Level
-{
-public:
-    Level(const std::vector<std::string>& map_sketch, const std::vector<std::string>& floor_map_sketch);
-    ~Level();
-
-    const std::vector<std::vector<MapCell*>>& get_map() { return map_cells_;};
-private:
-    std::vector<std::vector<MapCell*>> map_cells_;
-};
+enum class GameControls {move_up, move_down, move_left, move_right};
 
 
 class Game
 {
 public:
     Game();
-    ~Game();
     GameStatus make_turn(GameControls control);
-    const std::vector<std::vector<MapCell*>>& get_level() { return level_->get_map(); }
 private:
-     Level* level_;
+     std::unique_ptr<Map> map_;
 };
 
 }//namespace game

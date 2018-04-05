@@ -7,7 +7,6 @@ namespace cui {
 class Ui
 {
 public:
-    Ui() = default;
     ~Ui();
 
     void show_menu();

@@ -3,18 +3,17 @@
 #include <string>
 #include <functional>
 #include <map>
-#include "game.h"
+#include <memory>
 
 namespace game {
 
 class Actor
 {
 public:
-    Actor() : Actor(0, 0) {}
-    Actor(int y, int x, char icon = '-') : y_(y), x_(x), map_icon_(icon) {}
+    explicit Actor(int y = 0, int x = 0, char icon = '-') : y_(y), x_(x), map_icon_(icon) {}
 
-    virtual void move(GameControls control) = 0;
-    virtual void move() = 0;
+//    virtual void move(GameControls control) = 0;
+//    virtual void move() = 0;
 
     char map_icon() const { return map_icon_; }
 protected:
@@ -23,84 +22,68 @@ protected:
     char map_icon_;
 };
 
+
 class FloorActor : public Actor
 {
 public:
-    FloorActor() : FloorActor(0, 0) {}
-    FloorActor(int y, int x, char icon = 'F') : Actor(y, x, icon) {}
-
-    void move(GameControls control) override;
+    explicit FloorActor(int y = 0, int x = 0, char icon = 'F') : Actor(y, x, icon) {}
 };
 
 
 class EmptyFloor: public  FloorActor
 {
 public:
-    EmptyFloor() : EmptyFloor(0, 0) {}
-    EmptyFloor(int y, int x) : FloorActor(y, x, ' ') {}
+    explicit EmptyFloor(int y = 0, int x = 0) : FloorActor(y, x, ' ') {}
 };
 
-//class LavaFloor: public FloorActor
-//{
-//public:
-//    Floo
-//};
 
-class VoidActor: public Actor
+class EmptyActor: public Actor
 {
 public:
-    //ASK: нельзя вынести?
-    VoidActor() : VoidActor(0, 0) {}
-    VoidActor(int y, int x) : Actor(y, x, ' ') {}
+    explicit EmptyActor(int y = 0, int x = 0) : Actor(y, x, ' ') {}
 };
+
 
 class Wall : public Actor
 {
 public:
-    Wall(int y, int x) : Actor(y, x, '#') {}
+    explicit Wall(int y = 0, int x = 0) : Actor(y, x, '#') {}
 
 };
+
 
 class MainCharActor : public Actor
 {
 public:
-    MainCharActor() : MainCharActor(0, 0) {}
-    MainCharActor(int y, int x) : Actor(y, x, 'S') {}
-
-    bool is_playable() const override { return true; }
+    explicit MainCharActor(int y = 0, int x = 0) : Actor(y, x, 'S') {}
 };
 
-template <class T>
-class Factory
+
+template <class BaseT>
+class BaseFactory
 {
 public:
-    template <class G>
-    bool add_actor();
-    //can return nullptr
-    T* create(char icon, int y, int x);
+    template <class ActorT>
+    void add_actor();
+    //CAN return nullptr
+    std::shared_ptr<BaseT> create(char icon, int row, int col);
+
 private:
-    std::map<char, std::function<T*(int, int)>> constructors_;
+    std::map<char, std::function<BaseT*(int, int)>> constructors_;
 };
 
 
-class ActorFactory
+class ActorFactory : public BaseFactory<Actor>
 {
 public:
     ActorFactory();
-    Actor* create(char icon, int y, int x);
-
-private:
-    Factory<Actor> real_factory_;
 };
 
 
-class FloorActorFactory
+class FloorActorFactory : public BaseFactory<FloorActor>
 {
 public:
     FloorActorFactory();
-    FloorActor* create(char icon, int y, int x);
-private:
-    Factory<FloorActor> real_factory_;
 };
 
 } //namespace game

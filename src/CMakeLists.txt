@@ -9,7 +9,13 @@ if (NOT CURSES_FOUND)
 endif()
 
 
-set(SRC main.cpp cui.cpp menu.cpp game.cpp actors.cpp game.cpp)
+set(SRC
+        actors.cpp
+        cui.cpp
+        game.cpp
+        menu.cpp
+        main.cpp
+        map.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC})
 
