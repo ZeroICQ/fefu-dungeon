@@ -10,7 +10,7 @@ namespace game {
 class Actor
 {
 public:
-    explicit Actor(int y = 0, int x = 0, char icon = '-') : y_(y), x_(x), map_icon_(icon) {}
+    explicit    Actor(int y = 0, int x = 0, char icon = '-') : y_(y), x_(x), map_icon_(icon) {}
 
 //    virtual void move(GameControls control) = 0;
 //    virtual void move() = 0;
@@ -76,14 +76,14 @@ private:
 class ActorFactory : public BaseFactory<Actor>
 {
 public:
-    ActorFactory();
+    explicit ActorFactory();
 };
 
 
 class FloorActorFactory : public BaseFactory<FloorActor>
 {
 public:
-    FloorActorFactory();
+    explicit FloorActorFactory();
 };
 
 } //namespace game

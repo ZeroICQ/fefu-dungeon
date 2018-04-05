@@ -12,6 +12,7 @@ void game::BaseFactory<BaseT>::add_actor()
     constructors_[ActorT().map_icon()] = [](int row, int col){return new ActorT(row, col);};
 }
 
+
 template<class BaseT>
 shared_ptr<BaseT> game::BaseFactory<BaseT>::create(char icon, int row, int col)
 {
@@ -21,14 +22,14 @@ shared_ptr<BaseT> game::BaseFactory<BaseT>::create(char icon, int row, int col)
     return shared_ptr<BaseT>(constructors_[icon](row, col));
 }
 
-game::ActorFactory::ActorFactory()
+game::ActorFactory::ActorFactory() : BaseFactory<Actor>()
 {
     add_actor<Wall>();
     add_actor<MainCharActor>();
     add_actor<EmptyActor>();
 }
 
-game::FloorActorFactory::FloorActorFactory()
+game::FloorActorFactory::FloorActorFactory() : BaseFactory<FloorActor>()
 {
     add_actor<EmptyFloor>();
 }
