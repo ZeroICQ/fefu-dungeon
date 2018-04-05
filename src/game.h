@@ -3,7 +3,7 @@
 #include <ncurses.h>
 #include <vector>
 #include <string>
-#include "actors.h"
+#include <memory>
 #include "map.h"
 
 namespace game {
@@ -15,8 +15,9 @@ enum class GameControls {move_up, move_down, move_left, move_right};
 class Game
 {
 public:
-    Game();
+    explicit Game();
     GameStatus make_turn(GameControls control);
+    std::unique_ptr<MapConstIterator> map_iterator() const { return map_->iterator(); }
 private:
      std::unique_ptr<Map> map_;
 };

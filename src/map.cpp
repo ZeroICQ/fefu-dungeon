@@ -33,21 +33,26 @@ game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map
 
 unique_ptr<game::MapConstIterator> game::Map::iterator() const
 {
-    new MapConstIterator(map_cells_);
-    return std::unique_ptr<MapConstIterator>();
+    return std::unique_ptr<MapConstIterator>(new MapConstIterator(map_cells_));
 }
 
-const shared_ptr<const game::MapCell> game::MapConstIterator::begin()
+
+bool game::MapConstIterator::is_end() const
+{
+    //TODO: do a better iterator
+    return static_cast<int>(cells_.size()) <= row_;
+}
+
+const std::shared_ptr<const game::MapCell> game::MapConstIterator::get_item() const
+{
+    return cells_[row_][col_];
+}
+
+void game::MapConstIterator::next()
 {
     col_++;
     if (col_ >= static_cast<int>(cells_[row_].size())) {
         col_ = 0;
         row_++;
     }
-    return cells_[row_][col_];
-}
-
-bool game::MapConstIterator::is_end() const
-{
-    return static_cast<int>(cells_.size()) == row_ && static_cast<int>(cells_.back().size()) == col_;
 }

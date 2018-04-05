@@ -31,7 +31,8 @@ public:
     MapCell(const std::shared_ptr<Actor>& actor,
             const std::shared_ptr<FloorActor>& floor)
         : actor_(actor), floor_(floor) {}
-
+    std::shared_ptr<Actor> actor() const {return actor_; }
+    std::shared_ptr<FloorActor> floor() const { return floor_; }
 private:
     std::shared_ptr<Actor> actor_;
     std::shared_ptr<FloorActor> floor_;
@@ -42,11 +43,12 @@ class MapConstIterator
 {
 public:
     explicit MapConstIterator(const std::vector<std::vector<std::shared_ptr<game::MapCell>>>& map) : cells_(map) {}
-    const std::shared_ptr<const game::MapCell> begin();
+    void next();
+    const std::shared_ptr<const game::MapCell> get_item() const;
     bool is_end() const;
 private:
     //TODO: make check not empty
-    int col_ = -1;
+    int col_ = 0;
     int row_ = 0;
     const std::vector<std::vector<std::shared_ptr<game::MapCell>>>& cells_;
 };

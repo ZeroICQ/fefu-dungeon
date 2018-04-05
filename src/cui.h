@@ -14,7 +14,7 @@ public:
 private:
     void initialize_curses() const;
     void start_game() const;
-    void update_game_frame(WINDOW* game_window, std::vector<std::vector<game::MapCell*>>& game_level) const;
+    void update_game_frame(WINDOW* game_window, const game::Game& game) const;
 };
 
 }//namespace cui

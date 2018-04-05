@@ -49,11 +49,11 @@ void cui::Ui::start_game() const
     WINDOW *game_window;
     Game current_game;
 
-//    auto& game_map = current_game.map();
 //
+    game_window = newwin((int) 100, (int) 100, 0, 0);
 //    game_window = newwin((int) game_level.size(), (int) game_level[0].size(), 0, 0);
 //
-//    update_game_frame(game_window, game_level);
+    update_game_frame(game_window, current_game);
     game::GameControls player_selection;
 
     do {
@@ -85,8 +85,15 @@ void cui::Ui::start_game() const
     delwin(game_window);
 }
 
-void cui::Ui::update_game_frame(WINDOW* game_window, std::vector<std::vector<game::MapCell*>>& game_level) const
+void cui::Ui::update_game_frame(WINDOW* game_window, const Game& game) const
 {
+    for (auto map_iterator = game.map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
+        const std::shared_ptr<const game::MapCell> cur_item = map_iterator->get_item();
+        mvwaddch(game_window, cur_item->actor()->row(), cur_item->actor()->col(), static_cast<uint>(cur_item->actor()->map_icon()));
+    }
+    wrefresh(game_window);
+
+
 //    for (int i = 0; i < (int) game_level.size(); i++) {
 //        for (int j = 0; j < (int) game_level[i].size(); j++) {
 //            mvwaddch(game_window,i,j, (uint)game_level[i][j]->floorActor().map_icon());
