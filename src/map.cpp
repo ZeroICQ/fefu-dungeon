@@ -24,7 +24,7 @@ game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map
         for (int col = 0; col < cols; col++) {
             map_cells_.back().emplace_back(new MapCell(
                         actor_factory.create(map_sketch[row][col], row, col),
-                        floor_factory.create(map_sketch[row][col], row, col)
+                        floor_factory.create(floor_map_sketch[row][col], row, col)
                     ));
         }
     }

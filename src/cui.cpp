@@ -56,8 +56,12 @@ void cui::Ui::start_game() const
     update_game_frame(game_window, current_game);
     game::GameControls player_selection;
 
+    bool exit_game = false;
     do {
         switch (getch()) {
+            case 'q':
+                exit_game = true;
+                break;
             case 's':
             case KEY_DOWN:
                 player_selection = game::GameControls::move_down;
@@ -77,8 +81,8 @@ void cui::Ui::start_game() const
                 break;
         }
 
-//        update_game_frame(game_window, game_level);
-    } while(current_game.make_turn(player_selection) != game::GameStatus::stop);
+        update_game_frame(game_window, current_game);
+    } while(!exit_game && current_game.make_turn(player_selection) != game::GameStatus::stop);
 
     wclear(game_window);
     wrefresh(game_window);
@@ -88,7 +92,9 @@ void cui::Ui::start_game() const
 void cui::Ui::update_game_frame(WINDOW* game_window, const Game& game) const
 {
     for (auto map_iterator = game.map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
+        //ASK: definition in loop
         const std::shared_ptr<const game::MapCell> cur_item = map_iterator->get_item();
+        mvwaddch(game_window, cur_item->floor()->row(), cur_item->floor()->col(), static_cast<uint>(cur_item->floor()->map_icon()));
         mvwaddch(game_window, cur_item->actor()->row(), cur_item->actor()->col(), static_cast<uint>(cur_item->actor()->map_icon()));
     }
     wrefresh(game_window);

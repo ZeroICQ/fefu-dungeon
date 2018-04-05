@@ -35,7 +35,7 @@ public:
 class EmptyFloor: public  FloorActor
 {
 public:
-    explicit EmptyFloor(int y = 0, int x = 0) : FloorActor(y, x, ' ') {}
+    explicit EmptyFloor(int row = 0, int col = 0) : FloorActor(row, col, ' ') {}
 };
 
 
