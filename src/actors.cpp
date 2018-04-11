@@ -35,46 +35,52 @@ game::FloorActorFactory::FloorActorFactory()
 }
 
 //?????????????????????????????????????????????????????????????????????????????????
-// так делают?
+//ASK: так делают?
 template class game::BaseFactory<game::Actor>;
 template class game::BaseFactory<game::FloorActor>;
 
-void game::MainCharActor::move(game::GameControls control)
+void game::MainCharActor::move(game::GameControls controls, Map& map)
 {
-    switch (control) {
+    if (!can_make_turn()) {
+        return;
+    }
+
+    ActiveActor::move(controls, map);
+
+    auto desired_row = row();
+    auto desired_col = col();
+
+    switch (controls) {
         case GameControls::move_up:
-            move_up();
+            desired_row -= 1;
             break;
         case GameControls::move_right:
-            move_right();
+            desired_col += 1;
             break;
         case GameControls::move_down:
-            move_down();
+            desired_row += 1;
             break;
         case GameControls::move_left:
-            move_left();
+            desired_col -= 1;
             break;
         default:
             break;
     }
+
+    if (!map.is_inbound(desired_row, desired_col)) {
+        return;
+    }
+
+    map.get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
 
-void game::ActiveActor::move_up()
+void game::EmptyActor::collide(game::MainCharActor& other, game::Map& map)
 {
-    row_ -= 1;
+    map.move_actor(other.row(), other.col(), row(), col());
+
 }
 
-void game::ActiveActor::move_right()
+void game::ActiveActor::move(game::GameControls control, game::Map& map)
 {
-    col_ += 1;
-}
-
-void game::ActiveActor::move_down()
-{
-    row_ += 1;
-}
-
-void game::ActiveActor::move_left()
-{
-    col_ -= 1;
+    can_make_turn(false);
 }

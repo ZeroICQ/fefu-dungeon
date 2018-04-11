@@ -11,7 +11,10 @@ namespace game {
 class MapCell;
 class MapConstIterator;
 class MapIterator;
-
+//ASK: ломаем циклическую зависимость или руки?
+class Actor;
+class FloorActor;
+class EmptyActor;
 
 class Map
 {
@@ -19,7 +22,11 @@ public:
     Map(const std::vector<std::string>& map_sketch, const std::vector<std::string>& floor_map_sketch);
     std::unique_ptr<MapConstIterator> const_iterator() const;
     std::unique_ptr<MapIterator> iterator() const;
-//    const std::unique_ptr<const game::MapCell>& get_cell(int col, int row) const { return &map_cells_[col][row]; };
+    bool is_inbound(int row, int col) const;
+    int width() const { return static_cast<int>(map_cells_[0].size()); }
+    int height() const { return static_cast<int>(map_cells_.size()); }
+    std::shared_ptr<game::MapCell> get_cell(int col, int row) const { return map_cells_[col][row]; };
+    void move_actor(int row_from, int col_from, int row_to, int col_to, std::shared_ptr<Actor> replace_actor = nullptr);
 
 private:
     std::vector<std::vector<std::shared_ptr<game::MapCell>>> map_cells_;
@@ -34,10 +41,11 @@ public:
             const std::shared_ptr<FloorActor>& floor)
         : actor_(actor), floor_(floor) {}
 
-    //ASK: нормально ли делать два геттера?
-    std::shared_ptr<Actor> actor() const {return actor_; }
+    std::shared_ptr<Actor> actor() const { return actor_; }
+    void actor(std::shared_ptr<Actor> replace) { actor_ = replace; }
 
     std::shared_ptr<FloorActor> floor() const { return floor_; }
+    void floor(std::shared_ptr<FloorActor> replace) { floor_ = replace; }
 private:
     std::shared_ptr<Actor> actor_;
     std::shared_ptr<FloorActor> floor_;
@@ -63,10 +71,9 @@ class MapConstIterator : public MapIterator
 {
 public:
     explicit MapConstIterator(const std::vector<std::vector<std::shared_ptr<game::MapCell>>>& map)
-            : MapIterator(map) {}
-
+        : MapIterator(map) {}
+    //ASK: как сделать константый геттер
     const std::shared_ptr<const Actor> actor() const { return MapIterator::actor(); };
-
     const std::shared_ptr<const FloorActor> floor() const { return MapIterator::floor(); }
 };
 
