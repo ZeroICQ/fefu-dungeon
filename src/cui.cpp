@@ -48,10 +48,10 @@ void cui::Ui::start_game() const
     WINDOW *game_window;
     Game current_game;
 
-//TODO:size
-    game_window = newwin((int) 100, (int) 100, 0, 0);
-//    game_window = newwin((int) game_level.size(), (int) game_level[0].size(), 0, 0);
-//
+    int map_height = current_game.get_map_height();
+    int map_width = current_game.get_map_width();
+
+    game_window = newwin(map_height, map_width, (LINES - map_height) / 2, (COLS - map_width) / 2);
     update_game_frame(game_window, current_game);
     game::GameControls player_selection = game::GameControls::idle;
 
