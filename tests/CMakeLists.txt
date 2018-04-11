@@ -1,4 +1,4 @@
-#include(CodeCoverage)
+include(CodeCoverage)
 set(TEST_SRC catch.cpp tests.cpp)
 set(TEST_INC inc)
 
