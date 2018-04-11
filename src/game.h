@@ -11,7 +11,8 @@ class Game
 public:
     explicit Game();
     GameStatus make_turn(GameControls control);
-    std::unique_ptr<MapConstIterator> map_iterator() const { return map_->iterator(); }
+    std::unique_ptr<MapConstIterator> map_const_iterator() const { return map_->const_iterator(); }
+    std::unique_ptr<MapIterator> map_iterator() const { return map_->iterator(); }
 private:
      std::unique_ptr<Map> map_;
 };

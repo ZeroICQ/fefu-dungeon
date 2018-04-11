@@ -9,7 +9,6 @@ class Ui
 {
 public:
     ~Ui();
-
     void show_menu();
 
 private:

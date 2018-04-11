@@ -1,3 +1,4 @@
+#include <memory>
 #include "map.h"
 #include "actors.h"
 
@@ -5,6 +6,7 @@ using std::vector;
 using std::string;
 using std::unique_ptr;
 using std::shared_ptr;
+using std::make_unique;
 
 game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map_sketch)
 {
@@ -30,24 +32,17 @@ game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map
 
 }
 
-unique_ptr<game::MapConstIterator> game::Map::iterator() const
+unique_ptr<game::MapConstIterator> game::Map::const_iterator() const
 {
-    return std::unique_ptr<MapConstIterator>(new MapConstIterator(map_cells_));
+    return std::make_unique<MapConstIterator>(map_cells_);
 }
 
-
-bool game::MapConstIterator::is_end() const
+unique_ptr<game::MapIterator> game::Map::iterator() const
 {
-    //TODO: do a better iterator
-    return static_cast<int>(cells_.size()) <= row_;
+    return std::make_unique<MapIterator>(map_cells_);
 }
 
-const std::shared_ptr<const game::MapCell> game::MapConstIterator::get_item() const
-{
-    return cells_[row_][col_];
-}
-
-void game::MapConstIterator::next()
+void game::MapIterator::next()
 {
     col_++;
     if (col_ >= static_cast<int>(cells_[row_].size())) {
@@ -55,3 +50,19 @@ void game::MapConstIterator::next()
         row_++;
     }
 }
+
+bool game::MapIterator::is_end() const
+{
+    return static_cast<int>(cells_.size()) <= row_;
+}
+
+const std::shared_ptr<game::Actor> game::MapIterator::actor() const
+{
+    return cells_[row_][col_]->actor();
+}
+
+const std::shared_ptr<game::FloorActor> game::MapIterator::floor() const
+{
+    return cells_[row_][col_]->floor();
+}
+

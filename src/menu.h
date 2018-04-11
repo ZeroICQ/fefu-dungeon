@@ -36,7 +36,7 @@ private:
 class MainMenu: public Menu
 {
 public:
-    //ASK: куда положпить список?
+    //ASK: куда положить список?
     MainMenu() : Menu("Main Menu", {"Start game", "Exit"}) {}
     enum Actions{start, exit};
 };
