@@ -1,8 +1,5 @@
 #pragma once
 
-#include <ncurses.h>
-#include <vector>
-#include <string>
 #include <memory>
 #include "map.h"
 #include "statuses.h"

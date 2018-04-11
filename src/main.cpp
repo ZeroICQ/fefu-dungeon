@@ -1,6 +1,4 @@
-#include <exception>
 #include "cui.h"
-#include <ncurses.h>
 
 int main()
 {

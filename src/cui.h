@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ncurses.h>
 #include "game.h"
 
 namespace cui {

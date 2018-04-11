@@ -1,5 +1,4 @@
 #include "game.h"
-#include "actors.h"
 
 using std::vector;
 
