@@ -12,6 +12,8 @@ namespace game {
 //predeclare circular dependency
 class Map;
 class MainCharActor;
+class EmptyActor;
+class ActiveActor;
 
 class Actor
 {
@@ -31,7 +33,8 @@ public:
     void set_pos(int r_row, int r_col) { row(r_row); col(r_col); }
 
     virtual void collide(Actor& other, Map& map) = 0;
-    virtual void collide(MainCharActor& other, Map& map) {};
+    virtual void collide(ActiveActor& other, Map& map) {}
+
     bool can_make_turn() { return can_make_turn_; }
     void can_make_turn(bool can) { can_make_turn_ = can; }
 
@@ -64,7 +67,7 @@ class EmptyActor : public Actor
 public:
     explicit EmptyActor(int row = 0, int col = 0, char icon = ' ') : Actor(row, col, icon) {}
     void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
-    void collide(MainCharActor& other, Map& map) override;
+    void collide(ActiveActor& other, Map& map) override;
 };
 
 
@@ -90,8 +93,26 @@ public:
 class MainCharActor : public ActiveActor
 {
 public:
-    void move(GameControls controls, Map& map) override;
     explicit MainCharActor(int row = 0, int col = 0, char icon ='S') : ActiveActor(row, col, icon) {}
+    void move(GameControls controls, Map& map) override;
+    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+};
+
+
+class EnemyActor : public ActiveActor
+{
+public:
+    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E') : ActiveActor(row, col, icon) {}
+};
+
+
+class GuardActor : public EnemyActor
+{
+public:
+    explicit GuardActor(int row = 0, int col = 0, char icon ='G') : EnemyActor(row, col, icon) {}
+
+    void move(GameControls control, Map& map) override;
+
     void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
 };
 
