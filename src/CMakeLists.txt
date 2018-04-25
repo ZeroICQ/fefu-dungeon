@@ -15,7 +15,8 @@ set(SRC
         game.cpp
         menu.cpp
         main.cpp
-        map.cpp)
+        map.cpp
+        event_system.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC})
 

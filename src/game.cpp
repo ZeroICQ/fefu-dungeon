@@ -1,4 +1,5 @@
 #include "game.h"
+#include "event_system.h"
 
 using std::vector;
 
@@ -46,6 +47,8 @@ game::Game::Game()
             "                                                                   "};
 
     map_.reset(new Map(map, floor_map));
+    EventManager& e = EventManager::instance();
+
 }
 
 
