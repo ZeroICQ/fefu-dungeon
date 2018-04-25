@@ -47,17 +47,17 @@ bool game::Map::is_inbound(int row, int col) const
     return 0 <= col && col < width() && 0 <= row && row < height();
 }
 
-void game::Map::move_actor(int row_from, int col_from, int row_to, int col_to, shared_ptr<game::Actor> replace_actor)
-{
-    if (!replace_actor) {
-        replace_actor = std::make_shared<EmptyActor>(row_from, col_from);
-    }
-    map_cells_[row_to][col_to]->actor(map_cells_[row_from][col_from]->actor());
-    map_cells_[row_to][col_to]->actor()->set_pos(row_to, col_to);
-
-    map_cells_[row_from][col_from]->actor(replace_actor);
-    map_cells_[row_from][col_from]->actor()->set_pos(row_from, col_from);
-}
+//void game::Map::move_actor(int row_from, int col_from, int row_to, int col_to, shared_ptr<game::Actor> replace_actor)
+//{
+//    if (!replace_actor) {
+//        replace_actor = std::make_shared<EmptyActor>(row_from, col_from);
+//    }
+//    map_cells_[row_to][col_to]->actor(map_cells_[row_from][col_from]->actor());
+//    map_cells_[row_to][col_to]->actor()->set_pos(row_to, col_to);
+//
+//    map_cells_[row_from][col_from]->actor(replace_actor);
+//    map_cells_[row_from][col_from]->actor()->set_pos(row_from, col_from);
+//}
 
 void game::MapIterator::next()
 {

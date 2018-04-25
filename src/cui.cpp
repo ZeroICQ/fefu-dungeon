@@ -1,3 +1,4 @@
+#include <caca.h>
 #include "cui.h"
 #include "menu.h"
 #include "game.h"
@@ -59,6 +60,7 @@ void cui::Ui::start_game() const
     do {
         switch (getch()) {
             case 'q':
+            case KEY_A1:
                 exit_game = true;
                 break;
             case 's':
@@ -82,7 +84,7 @@ void cui::Ui::start_game() const
                 break;
         }
 
-        current_game.make_turn(player_selection);
+        current_game.handle_controls(player_selection);
         update_game_frame(game_window, current_game);
     } while(!exit_game);
 

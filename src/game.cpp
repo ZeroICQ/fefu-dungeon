@@ -49,17 +49,13 @@ game::Game::Game()
 }
 
 
-game::GameStatus game::Game::make_turn(game::GameControls control)
+void game::Game::handle_controls(game::GameControls control)
 {
-    //reset
-    for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-        map_iterator->actor()->can_make_turn(true);
+    if (control == game::GameControls::idle) {
+        return;
     }
 
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-
-        map_iterator->actor()->move(control, *map_);
+//        map_iterator->actor()->move(control, *map_);
     }
-
-    return GameStatus::in_progress;
 }
