@@ -6,11 +6,13 @@
 #include <memory>
 #include "statuses.h"
 #include "map.h"
+#include "event_system.h"
 
 namespace game {
 
-//predeclare circular dependency
+//fd circular dependency
 class Map;
+class MapCell;
 class MainCharActor;
 class EmptyActor;
 class ActiveActor;
@@ -20,7 +22,8 @@ class Actor
 public:
     explicit Actor(int row = 0, int col = 0, char icon = '-') : row_(row), col_(col), map_icon_(icon) {}
 
-//    virtual void move(GameControls control, Map& map) {};
+    //MyLittleHack
+    std::shared_ptr<MapCell> get_shared_ptr(int row, int col, std::shared_ptr<Map> map);
 
     char map_icon() const { return map_icon_; }
     int row() const { return row_; }
@@ -30,8 +33,15 @@ public:
 
     void set_pos(int r_row, int r_col) { row(r_row); col(r_col); }
 
-//    virtual void collide(Actor& other, Map& map) = 0;
-//    virtual void collide(MainCharActor& other, Map& map) {}
+    virtual void move(GameControls controls, const std::shared_ptr<Map> map) const {}
+
+    //TODO: make = 0
+    virtual void collide(const Actor& other, const std::shared_ptr<Map> map) const {}
+//    virtual void collide(const MainCharActor& other, const std::shared_ptr<Map> map) {}
+    virtual void collide(const ActiveActor& other, const std::shared_ptr<Map> map) {};
+
+    //flags
+    virtual bool is_transparent() { return false; }
 
 protected:
     int row_;
@@ -60,7 +70,12 @@ class EmptyActor : public Actor
 {
 public:
     explicit EmptyActor(int row = 0, int col = 0, char icon = ' ') : Actor(row, col, icon) {}
+
+    void collide(const ActiveActor& other, const std::shared_ptr<Map> map) override;
+
 //    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+
+    bool is_transparent() final { return true; }
 };
 
 
@@ -86,7 +101,10 @@ class MainCharActor : public ActiveActor
 {
 public:
     explicit MainCharActor(int row = 0, int col = 0, char icon ='S') : ActiveActor(row, col, icon) {}
-//    void move(GameControls controls, Map& map) override;
+
+    void move(GameControls controls, std::shared_ptr<Map> map) const override;
+
+    void collide(const Actor &other, std::shared_ptr<Map> map) const override { other.collide(*this, map); };
 //    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
 };
 

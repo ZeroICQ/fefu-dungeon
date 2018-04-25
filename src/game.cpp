@@ -1,5 +1,4 @@
 #include "game.h"
-#include "event_system.h"
 
 using std::vector;
 
@@ -47,8 +46,6 @@ game::Game::Game()
             "                                                                   "};
 
     map_.reset(new Map(map, floor_map));
-    EventManager& e = EventManager::instance();
-
 }
 
 
@@ -59,6 +56,9 @@ void game::Game::handle_controls(game::GameControls control)
     }
 
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-//        map_iterator->actor()->move(control, *map_);
+        map_iterator->actor()->move(control, map_);
     }
+
+    EventManager::instance().trigger_all(map_);
+
 }

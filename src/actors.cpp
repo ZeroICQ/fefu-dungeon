@@ -19,6 +19,37 @@ game::FloorActorFactory::FloorActorFactory()
     add_actor<EmptyFloor>();
 }
 
+
+void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map> map) const
+{
+    auto desired_row = row();
+    auto desired_col = col();
+
+    switch (controls) {
+        case GameControls::move_up:
+            desired_row -= 1;
+            break;
+        case GameControls::move_right:
+            desired_col += 1;
+            break;
+        case GameControls::move_down:
+            desired_row += 1;
+                break;
+        case GameControls::move_left:
+            desired_col -= 1;
+            break;
+        default:
+            break;
+    }
+
+    if (!map->is_inbound(desired_row, desired_col)) {
+        return;
+    }
+
+    map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
+}
+
+
 //void game::MainCharActor::move(game::GameControls controls, Map& map)
 //{
 ////    if (!can_make_turn()) {
@@ -52,8 +83,6 @@ game::FloorActorFactory::FloorActorFactory()
 //    }
 //
 //    map.get_cell(desired_row, desired_col)->actor()->collide(*this, map);
-//}
-
 //void game::EmptyActor::collide(game::ActiveActor& other, game::Map& map)
 //{
 //    map.move_actor(other.row(), other.col(), row(), col());
@@ -94,3 +123,13 @@ game::FloorActorFactory::FloorActorFactory()
 //
 //    map.get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 //}
+
+shared_ptr<game::MapCell> game::Actor::get_shared_ptr(int row, int col, shared_ptr<game::Map> map)
+{
+    return map->get_cell(row, col);
+}
+
+void game::EmptyActor::collide(const game::ActiveActor &other, shared_ptr<game::Map> map)
+{
+    EventManager::instance().add_move(get_shared_ptr(other.row(), other.col(), map)->actor(), row_, col_);
+}

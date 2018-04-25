@@ -7,11 +7,10 @@
 
 namespace game {
 
-//ASK: is it ok to make such forward declarations?
 class MapCell;
 class MapConstIterator;
 class MapIterator;
-//ASK: ломаем циклическую зависимость или руки?
+
 class Actor;
 class FloorActor;
 class EmptyActor;
@@ -26,7 +25,7 @@ public:
     int width() const { return static_cast<int>(map_cells_[0].size()); }
     int height() const { return static_cast<int>(map_cells_.size()); }
     std::shared_ptr<game::MapCell> get_cell(int col, int row) const { return map_cells_[col][row]; };
-//    void move_actor(int row_from, int col_from, int row_to, int col_to, std::shared_ptr<Actor> replace_actor = nullptr);
+    void move_actor(int row_from, int col_from, int row_to, int col_to, std::shared_ptr<Actor> replace_actor = nullptr);
 
 private:
     std::vector<std::vector<std::shared_ptr<game::MapCell>>> map_cells_;
@@ -42,10 +41,10 @@ public:
         : actor_(actor), floor_(floor) {}
 
     std::shared_ptr<Actor> actor() const { return actor_; }
-//    void actor(std::shared_ptr<Actor> replace) { actor_ = replace; }
+    void    actor(std::shared_ptr<Actor> replace) { actor_ = replace; }
 
     std::shared_ptr<FloorActor> floor() const { return floor_; }
-//    void floor(std::shared_ptr<FloorActor> replace) { floor_ = replace; }
+    void floor(std::shared_ptr<FloorActor> replace) { floor_ = replace; }
 private:
     std::shared_ptr<Actor> actor_;
     std::shared_ptr<FloorActor> floor_;

@@ -2,7 +2,6 @@
 
 #include <memory>
 #include "map.h"
-#include "statuses.h"
 
 namespace game {
 
@@ -20,7 +19,7 @@ public:
     int get_map_height() const { return map_->height(); }
 
 private:
-    std::unique_ptr<Map> map_;
+    std::shared_ptr<Map> map_;
 };
 
 }//namespace game

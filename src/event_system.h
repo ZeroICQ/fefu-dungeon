@@ -3,10 +3,11 @@
 #include <list>
 #include <vector>
 #include "actors.h"
-#include "game.h"
 
 namespace game {
 
+class Map;
+class Actor;
 class Event;
 
 class EventManager
@@ -14,7 +15,8 @@ class EventManager
 public:
     //Meyer's singleton
     static EventManager& instance();
-    void trigger_all(Map& map);
+    void trigger_all(std::shared_ptr<Map> map);
+
 
     void add_move(std::shared_ptr<Actor> actor, int row_to, int col_to);
 
@@ -33,7 +35,7 @@ private:
 class Event
 {
 public:
-    virtual void trigger(Map& map) = 0;
+    virtual void trigger(std::shared_ptr<Map> map) = 0;
 
 };
 
@@ -43,6 +45,8 @@ class MoveEvent : public Event
 public:
     MoveEvent(std::shared_ptr<Actor> actor, int row_to, int col_to)
             : actor_(actor), row_to_(row_to), col_to_(col_to) {}
+
+    void trigger(std::shared_ptr<Map> map) override;
 
 private:
     std::shared_ptr<Actor> actor_;
