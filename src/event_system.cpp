@@ -32,9 +32,17 @@ void game::EventManager::add_move(std::shared_ptr<game::Actor> actor, int row_to
     move_event_pool_->emplace_back(new MoveEvent(actor, row_to, col_to));
 }
 
+void game::EventManager::add_damage(std::shared_ptr<game::Actor> from, std::shared_ptr<game::Actor> to, int damage) {
+    damage_event_pool_->emplace_back(new DamageEvent(from, to, damage));
+}
+
 void game::MoveEvent::trigger(std::shared_ptr<Map> map)
 {
     if (map->is_inbound(row_to_, col_to_) && map->get_cell(row_to_, col_to_)->actor()->is_transparent()) {
         map->move_actor(actor_->row(), actor_->col(), row_to_, col_to_);
     }
+}
+
+void game::DamageEvent::trigger(std::shared_ptr<game::Map> map) {
+    damage
 }

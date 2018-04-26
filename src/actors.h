@@ -20,7 +20,10 @@ class ActiveActor;
 class Actor
 {
 public:
-    explicit Actor(int row = 0, int col = 0, char icon = '-') : row_(row), col_(col), map_icon_(icon) {}
+    explicit Actor(int row = 0, int col = 0, char icon = '-', int hit_points = 100,
+                   int attack_damage = 0)
+            : row_(row), col_(col), map_icon_(icon), hit_points_(hit_points),
+              attack_damage_{attack_damage} {}
 
     //MyLittleHack
     std::shared_ptr<MapCell> get_shared_ptr(int row, int col, std::shared_ptr<Map> map);
@@ -37,15 +40,22 @@ public:
 
     virtual void collide(const Actor& other, const std::shared_ptr<Map> map) const = 0;
 //    virtual void collide(const MainCharActor& other, const std::shared_ptr<Map> map) {}
-    virtual void collide(const ActiveActor& other, const std::shared_ptr<Map> map) {};
+    virtual void collide(const ActiveActor& other, const std::shared_ptr<Map> map) {}
 
     //flags
     virtual bool is_transparent() { return false; }
+
+    int hp() { return hit_points_; }
+    void hp(int s_hp) { hit_points_ = s_hp; }
+//  Possible underflow bug
+    void hit(int dmg) { hit_points_ -= dmg; }
 
 protected:
     int row_;
     int col_;
     char map_icon_;
+    int hit_points_;
+    int attack_damage_;
 };
 
 
@@ -91,7 +101,8 @@ public:
 class ActiveActor : public Actor
 {
 public:
-    explicit ActiveActor(int row = 0, int col = 0, char icon = 'A') :  Actor(row, col, icon) {}
+    explicit ActiveActor(int row = 0, int col = 0, char icon = 'A', int hit_points = 0, int attack_damage = 0)
+            :  Actor(row, col, icon, hit_points, attack_damage) {}
     void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 
 };
@@ -100,7 +111,8 @@ public:
 class MainCharActor : public ActiveActor
 {
 public:
-    explicit MainCharActor(int row = 0, int col = 0, char icon ='S') : ActiveActor(row, col, icon) {}
+    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 500, int attack_damage = 100)
+            : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, std::shared_ptr<Map> map) const override;
 
@@ -111,7 +123,8 @@ public:
 class EnemyActor : public ActiveActor
 {
 public:
-    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E') : ActiveActor(row, col, icon) {}
+    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E', int hit_points = 0)
+            : ActiveActor(row, col, icon, hit_points) {}
 
     void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 };
@@ -120,7 +133,8 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, char icon ='G') : EnemyActor(row, col, icon) {}
+    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 50)
+            : EnemyActor(row, col, icon, hit_points) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) const override;
 //    void move(GameControls control, Map& map) override;

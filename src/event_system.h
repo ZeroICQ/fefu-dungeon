@@ -17,8 +17,8 @@ public:
     static EventManager& instance();
     void trigger_all(std::shared_ptr<Map> map);
 
-
     void add_move(std::shared_ptr<Actor> actor, int row_to, int col_to);
+    void add_damage(std::shared_ptr<Actor> from, std::shared_ptr<Actor> to, int damage);
 
 private:
     EventManager();
@@ -60,6 +60,8 @@ class DamageEvent : public Event
 public:
     DamageEvent(std::shared_ptr<Actor> from, std::shared_ptr<Actor> to, int damage)
             : actor_from_(from), actor_to_(to), damage_(damage) {}
+
+    void trigger(std::shared_ptr<Map> map) override;
 
 private:
     std::shared_ptr<Actor> actor_from_;
