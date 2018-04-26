@@ -4,7 +4,6 @@
 
 using std::vector;
 using std::shared_ptr;
-using std::uniform_int_distribution;
 
 game::ActorFactory::ActorFactory()
 {
@@ -50,45 +49,7 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
 }
 
 
-//void game::MainCharActor::move(game::GameControls controls, Map& map)
-//{
-////    if (!can_make_turn()) {
-////        return;
-////    }
-//
-//    ActiveActor::move(controls, map);
-//
-//    auto desired_row = row();
-//    auto desired_col = col();
-//
-//    switch (controls) {
-//        case GameControls::move_up:
-//            desired_row -= 1;
-//            break;
-//        case GameControls::move_right:
-//            desired_col += 1;
-//            break;
-//        case GameControls::move_down:
-//            desired_row += 1;
-//            break;
-//        case GameControls::move_left:
-//            desired_col -= 1;
-//            break;
-//        default:
-//            break;
-//    }
-//
-//    if (!map.is_inbound(desired_row, desired_col)) {
-//        return;
-//    }
-//
-//    map.get_cell(desired_row, desired_col)->actor()->collide(*this, map);
-//void game::EmptyActor::collide(game::ActiveActor& other, game::Map& map)
-//{
-//    map.move_actor(other.row(), other.col(), row(), col());
-//
-//}
-//
+
 //void game::GuardActor::move(game::GameControls controls, game::Map& map) {
 //    ActiveActor::move(controls, map);
 //    enum Directions {up, right, down, left, count};
@@ -132,4 +93,36 @@ shared_ptr<game::MapCell> game::Actor::get_shared_ptr(int row, int col, shared_p
 void game::EmptyActor::collide(const game::ActiveActor &other, shared_ptr<game::Map> map)
 {
     EventManager::instance().add_move(get_shared_ptr(other.row(), other.col(), map)->actor(), row_, col_);
+}
+
+void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) const {
+    enum Directions {up, right, down, left, count};
+
+    int rnd_direction = rand() % (count);
+
+    int desired_row = row();
+    int desired_col = col();
+
+    switch (rnd_direction) {
+        case Directions::up:
+            desired_row -= 1;
+            break;
+        case Directions::right:
+            desired_col += 1;
+            break;
+        case Directions::down:
+            desired_row += 1;
+            break;
+        case Directions::left:
+            desired_col -= 1;
+            break;
+        default:
+            break;
+    }
+
+    if (!map->is_inbound(desired_row, desired_col)) {
+        return;
+    }
+
+    map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }

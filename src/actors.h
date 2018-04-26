@@ -35,8 +35,7 @@ public:
 
     virtual void move(GameControls controls, const std::shared_ptr<Map> map) const {}
 
-    //TODO: make = 0
-    virtual void collide(const Actor& other, const std::shared_ptr<Map> map) const {}
+    virtual void collide(const Actor& other, const std::shared_ptr<Map> map) const = 0;
 //    virtual void collide(const MainCharActor& other, const std::shared_ptr<Map> map) {}
     virtual void collide(const ActiveActor& other, const std::shared_ptr<Map> map) {};
 
@@ -54,7 +53,8 @@ class FloorActor : public Actor
 {
 public:
     explicit FloorActor(int row = 0, int col = 0, char icon = 'F') : Actor(row, col, icon) {}
-//    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 };
 
 
@@ -62,7 +62,7 @@ class EmptyFloor : public FloorActor
 {
 public:
     explicit EmptyFloor(int row = 0, int col = 0, char icon = ' ') : FloorActor(row, col, icon) {}
-//    void collide`(Actor& other, Map& map) override { return other.collide(*this, map); }
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 };
 
 
@@ -71,9 +71,8 @@ class EmptyActor : public Actor
 public:
     explicit EmptyActor(int row = 0, int col = 0, char icon = ' ') : Actor(row, col, icon) {}
 
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
     void collide(const ActiveActor& other, const std::shared_ptr<Map> map) override;
-
-//    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
 
     bool is_transparent() final { return true; }
 };
@@ -83,7 +82,8 @@ class Wall : public Actor
 {
 public:
     explicit Wall(int row = 0, int col = 0, char icon = '#') : Actor(row, col, icon) {}
-//    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 
 };
 
@@ -92,7 +92,7 @@ class ActiveActor : public Actor
 {
 public:
     explicit ActiveActor(int row = 0, int col = 0, char icon = 'A') :  Actor(row, col, icon) {}
-//    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 
 };
 
@@ -104,8 +104,7 @@ public:
 
     void move(GameControls controls, std::shared_ptr<Map> map) const override;
 
-    void collide(const Actor &other, std::shared_ptr<Map> map) const override { other.collide(*this, map); };
-//    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 };
 
 
@@ -113,6 +112,8 @@ class EnemyActor : public ActiveActor
 {
 public:
     explicit EnemyActor(int row = 0, int col = 0, char icon = 'E') : ActiveActor(row, col, icon) {}
+
+    void collide(const Actor &other, const std::shared_ptr<Map> map) const override { other.collide(*this, map); }
 };
 
 
@@ -121,6 +122,7 @@ class GuardActor : public EnemyActor
 public:
     explicit GuardActor(int row = 0, int col = 0, char icon ='G') : EnemyActor(row, col, icon) {}
 
+    void move(GameControls controls, const std::shared_ptr<Map> map) const override;
 //    void move(GameControls control, Map& map) override;
 
 //    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
