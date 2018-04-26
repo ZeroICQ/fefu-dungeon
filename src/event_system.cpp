@@ -44,5 +44,5 @@ void game::MoveEvent::trigger(std::shared_ptr<Map> map)
 }
 
 void game::DamageEvent::trigger(std::shared_ptr<game::Map> map) {
-    damage
+//TODO:    damage
 }

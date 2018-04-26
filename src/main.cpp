@@ -3,7 +3,7 @@
 int main()
 {
     cui::Ui ui;
-    ui.show_menu();
+    ui.run();
 
     return 0;
 }

@@ -9,7 +9,7 @@ class Ui
 {
 public:
     ~Ui();
-    void show_menu();
+    void run();
 
 private:
     void initialize_curses() const;

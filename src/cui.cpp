@@ -12,7 +12,7 @@ cui::Ui::~Ui()
     endwin();
 }
 
-void cui::Ui::show_menu()
+void cui::Ui::run()
 {
     initialize_curses();
     MainMenu main_menu;
