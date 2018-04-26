@@ -8,8 +8,8 @@ game::EventManager& game::EventManager::instance()
 
 game::EventManager::EventManager()
 {
-    move_event_pool_ = std::make_shared<std::list<std::shared_ptr<Event>>>();
-    damage_event_pool_ = std::make_shared<std::list<std::shared_ptr<Event>>>();
+    move_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
+    damage_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
 
     event_pools_.push_back(move_event_pool_);
     event_pools_.push_back(damage_event_pool_);
@@ -18,11 +18,9 @@ game::EventManager::EventManager()
 void game::EventManager::trigger_all(std::shared_ptr<Map> map)
 {
     for (auto& event_pool : event_pools_) {
-        auto event = event_pool->begin();
-
-        while (event != event_pool->end()) {
-            event->get()->trigger(map);
-            event = event_pool->erase(event);
+        while (!event_pool->empty()) {
+            event_pool->front()->trigger(map);
+            event_pool->pop_front();
         }
     }
 }

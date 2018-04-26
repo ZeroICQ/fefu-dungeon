@@ -1,7 +1,6 @@
 #pragma once
 
-#include <list>
-#include <vector>
+#include <deque>
 #include "actors.h"
 
 namespace game {
@@ -25,10 +24,10 @@ private:
 //    ~EventManager();
 
     //ASK: вектор шаблонных листов наследованного типа.
-    std::shared_ptr<std::list<std::shared_ptr<Event>>> move_event_pool_;
-    std::shared_ptr<std::list<std::shared_ptr<Event>>> damage_event_pool_;
+    std::shared_ptr<std::deque<std::shared_ptr<Event>>> move_event_pool_;
+    std::shared_ptr<std::deque<std::shared_ptr<Event>>> damage_event_pool_;
 
-    std::vector<std::shared_ptr<std::list<std::shared_ptr<Event>>>> event_pools_;
+    std::deque<std::shared_ptr<std::deque<std::shared_ptr<Event>>>> event_pools_;
 };
 
 
