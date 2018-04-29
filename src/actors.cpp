@@ -19,7 +19,7 @@ game::FloorActorFactory::FloorActorFactory()
 }
 
 
-void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map> map) const
+void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map> map)
 {
     auto desired_row = row();
     auto desired_col = col();
@@ -48,17 +48,13 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
 
-shared_ptr<game::MapCell> game::Actor::get_shared_ptr(int row, int col, shared_ptr<game::Map> map)
+
+void game::EmptyActor::collide(game::ActiveActor& other, shared_ptr<game::Map> map)
 {
-    return map->get_cell(row, col);
+    EventManager::instance().add_move(other.get_ptr(), row_, col_);
 }
 
-void game::EmptyActor::collide(const game::ActiveActor &other, shared_ptr<game::Map> map)
-{
-    EventManager::instance().add_move(get_shared_ptr(other.row(), other.col(), map)->actor(), row_, col_);
-}
-
-void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) const {
+void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) {
     enum Directions {up, right, down, left, count};
 
     int rnd_direction = rand() % (count);
@@ -88,4 +84,9 @@ void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::
     }
 
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
+}
+
+shared_ptr<game::Actor> game::Actor::get_ptr()
+{
+    return shared_from_this();
 }
