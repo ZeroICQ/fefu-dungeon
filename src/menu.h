@@ -11,7 +11,7 @@ namespace cui {
 class Menu
 {
 public:
-    Menu(const std::string& title, const std::vector<std::string>& entries, int height = 10, int width = 80);
+    Menu(const std::string& title, const std::vector<std::string>& entries, int height = 10, int width = 70);
     ~Menu();
 
     int show();

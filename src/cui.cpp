@@ -41,26 +41,33 @@ void cui::Ui::initialize_curses() const
     noecho();
     keypad(stdscr, true);
     curs_set(0);//set cursor invisible
+    nodelay(stdscr, true);// no delay moe
     refresh();
 }
 
 void cui::Ui::start_game() const
 {
-    WINDOW *game_window;
+    WINDOW* game_window;
+    WINDOW* status_window;
+
     Game current_game;
 
     int map_height = current_game.get_map_height();
     int map_width = current_game.get_map_width();
 
+    status_window = newwin(LINES, 30, 0, COLS - 30);
+    box(status_window, 0 , 0);
+
     game_window = newwin(map_height, map_width, (LINES - map_height) / 2, (COLS - map_width) / 2);
-    update_game_frame(game_window, current_game);
+    update_game_frame(game_window, status_window, current_game);
     game::GameControls player_selection = game::GameControls::idle;
 
     bool exit_game = false;
     do {
         switch (getch()) {
+            case ERR:
+                continue;
             case 'q':
-            case KEY_A1:
                 exit_game = true;
                 break;
             case 's':
@@ -85,15 +92,21 @@ void cui::Ui::start_game() const
         }
 
         current_game.handle_controls(player_selection);
-        update_game_frame(game_window, current_game);
+        update_game_frame(game_window, status_window, current_game);
+
     } while(!exit_game);
 
     wclear(game_window);
     wrefresh(game_window);
+
+    wclear(status_window);
+    wrefresh(status_window);
+
     delwin(game_window);
+    delwin(status_window);
 }
 
-void cui::Ui::update_game_frame(WINDOW* game_window, const Game& game) const
+void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game) const
 {
 
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
@@ -104,5 +117,12 @@ void cui::Ui::update_game_frame(WINDOW* game_window, const Game& game) const
         mvwaddch(game_window, map_iterator->actor()->row(), map_iterator->actor()->col(),
                  static_cast<uint>(map_iterator->actor()->map_icon()));
     }
+
+//    mvwaddch(status_window, rand() % 100, rand() % 30 , 'x');
+    mvwaddstr(status_window, 0,0, "012345678901234567890123456789");
+    touchwin(game_window);
+//    touchwin(status_window);
+
+    wrefresh(status_window);
     wrefresh(game_window);
 }

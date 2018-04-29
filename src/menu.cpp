@@ -22,19 +22,39 @@ int cui::Menu::show()
 
     bool exit = false;
 
+    int prev_max_x = getmaxx(stdscr);
+    int prev_max_y = getmaxy(stdscr);
+
     while (!exit) {
+        if (prev_max_x != getmaxx(stdscr) || prev_max_y != getmaxy(stdscr)) {
+            prev_max_x = getmaxx(stdscr);
+            prev_max_y = getmaxy(stdscr);
+
+//            wclear(menu_window_);
+
+            wresize(menu_window_, height_, width_);
+            mvwin(menu_window_, center_y()-height_/2, center_x()-width_/2);
+            wclear(stdscr);
+        }
+
+        box(menu_window_, 0, 0);
+        print_title(menu_window_);
+
         for (int i = 0; i < (int) entries_.size(); i++) {
             if (selected_ == i) {
                 wattron(menu_window_, WA_REVERSE);
             }
 
-            mvwprintw(menu_window_, 1 + i, 1, entries_[i].c_str());
+            mvwprintw(menu_window_, 2 + i, static_cast<int>(width_ - entries_[i].length())/2, entries_[i].c_str());
             wattroff(menu_window_, A_REVERSE);
         }
 
         wrefresh(menu_window_);
 
+
         switch (getch()) {
+            case ERR:
+                continue;
             case KEY_F(1):
             case 'e':
                 return -1;
