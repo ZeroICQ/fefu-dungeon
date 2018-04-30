@@ -22,19 +22,21 @@ int cui::Menu::show()
 
     bool exit = false;
 
-    int prev_max_x = getmaxx(stdscr);
-    int prev_max_y = getmaxy(stdscr);
+    //must be redrawed for the first time
+    int prev_max_x = -1;
+    int prev_max_y = -1;
 
     while (!exit) {
         if (prev_max_x != getmaxx(stdscr) || prev_max_y != getmaxy(stdscr)) {
             prev_max_x = getmaxx(stdscr);
             prev_max_y = getmaxy(stdscr);
 
+            wclear(menu_window_);
             wresize(menu_window_, height_, width_);
             mvwin(menu_window_, center_y() - height_ / 2, center_x() - width_ / 2);
             wclear(stdscr);
         }
-
+        //TODO: why?
         box(menu_window_, 0, 0);
         print_title(menu_window_);
 

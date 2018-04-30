@@ -55,18 +55,23 @@ void cui::Ui::start_game() const
     int map_height = current_game.get_map_height();
     int map_width = current_game.get_map_width();
 
-    status_window = newwin(LINES, 30, 0, COLS - 30);
-    box(status_window, 0 , 0);
+    status_window = newwin(0, 0, 0, 0);
+    box(status_window, 0, 0);
 
     game_window = newwin(map_height, map_width, (LINES - map_height) / 2, (COLS - map_width) / 2);
-    update_game_frame(game_window, status_window, current_game);
+
+    update_game_frame(game_window, status_window, current_game, true);
     game::GameControls player_selection = game::GameControls::idle;
+
+    int prev_max_x = getmaxx(stdscr);
+    int prev_max_y = getmaxy(stdscr);
+    bool is_resized;
 
     bool exit_game = false;
     do {
+        is_resized = false;
+
         switch (getch()) {
-            case ERR:
-                continue;
             case 'q':
                 exit_game = true;
                 break;
@@ -91,8 +96,16 @@ void cui::Ui::start_game() const
                 break;
         }
 
+        if (prev_max_x != getmaxx(stdscr) || prev_max_y != getmaxy(stdscr)) {
+            prev_max_x = getmaxx(stdscr);
+            prev_max_y = getmaxy(stdscr);
+
+            is_resized = true;
+        }
+
         current_game.handle_controls(player_selection);
-        update_game_frame(game_window, status_window, current_game);
+        update_game_frame(game_window, status_window, current_game, is_resized);
+
 
     } while(!exit_game);
 
@@ -106,7 +119,7 @@ void cui::Ui::start_game() const
     delwin(status_window);
 }
 
-void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game) const
+void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game, bool is_resized) const
 {
 
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
@@ -118,11 +131,23 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
                  static_cast<uint>(map_iterator->actor()->map_icon()));
     }
 
-//    mvwaddch(status_window, rand() % 100, rand() % 30 , 'x');
-    mvwaddstr(status_window, 0,0, "012345678901234567890123456789");
-    touchwin(game_window);
-//    touchwin(status_window);
 
-    wrefresh(status_window);
+    if (is_resized) {
+        wresize(status_window, LINES, STATUS_MENU_WIDTH);
+        mvwin(status_window, 0, COLS - STATUS_MENU_WIDTH);
+
+//      TODO:  Сделать центирование
+        wresize(game_window, game.get_map_height(), game.get_map_width());
+
+        wclear(status_window);
+        wclear(stdscr);
+    }
+
+    box(status_window, 0 , 0);
+
+    mvwaddstr(status_window, 0,0, "012345678901234567890123456789");
+
+    overwrite(game_window, status_window);
     wrefresh(game_window);
+    wrefresh(status_window);
 }
