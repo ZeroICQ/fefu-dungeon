@@ -146,8 +146,6 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
 
     box(status_window, 0 , 0);
 
-    mvwaddstr(status_window, 0,0, "012345678901234567890123456789");
-
     //center camera on main character
     int start_row = main_char->row() - getmaxy(game_window) / 2;
     int start_col = main_char->col() - getmaxx(game_window) / 2;
@@ -160,10 +158,12 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
     start_col = std::min(start_col, game.get_map_width()  - getmaxx(game_window));
 
 
-    //todo: refactor
+    //todo: refactor?
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
         auto curr_actor = map_iterator->actor();
+        auto curr_floor = map_iterator->floor();
 
+        //bounds check
         if (curr_actor->row() < start_row || curr_actor->col() < start_col
             || curr_actor->col() >= start_col + getmaxx(game_window)) {
             continue;
@@ -173,10 +173,11 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
             break;
         }
 
-
+        //print map characters
+        wattron(game_window, COLOR_PAIR(curr_floor->color_pair()));
         mvwaddch(game_window, map_iterator->floor()->row() - start_row, map_iterator->floor()->col() - start_col,
                  static_cast<uint>(map_iterator->floor()->map_icon()));
-
+        wattroff(game_window, COLOR_PAIR(curr_floor->color_pair()));
 
         wattron(game_window, COLOR_PAIR(curr_actor->color_pair()));
         mvwaddch(game_window, map_iterator->actor()->row() - start_row, map_iterator->actor()->col() - start_col,
@@ -184,6 +185,9 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
         wattroff(game_window, COLOR_PAIR(curr_actor->color_pair()));
 
     }
+
+    //fill status window
+//    TODO: continue
 
     overwrite(game_window, status_window);
     wrefresh(game_window);
