@@ -30,10 +30,8 @@ int cui::Menu::show()
             prev_max_x = getmaxx(stdscr);
             prev_max_y = getmaxy(stdscr);
 
-//            wclear(menu_window_);
-
             wresize(menu_window_, height_, width_);
-            mvwin(menu_window_, center_y()-height_/2, center_x()-width_/2);
+            mvwin(menu_window_, center_y() - height_ / 2, center_x() - width_ / 2);
             wclear(stdscr);
         }
 
