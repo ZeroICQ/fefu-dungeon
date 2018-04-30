@@ -16,7 +16,8 @@ set(SRC
         menu.cpp
         main.cpp
         map.cpp
-        event_system.cpp)
+        event_system.cpp
+        colors.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC})
 

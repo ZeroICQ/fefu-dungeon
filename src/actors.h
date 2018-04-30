@@ -7,6 +7,7 @@
 #include "statuses.h"
 #include "map.h"
 #include "event_system.h"
+#include "colors.h"
 
 namespace game {
 
@@ -21,9 +22,9 @@ class Actor: public std::enable_shared_from_this<Actor>
 {
 public:
     explicit Actor(int row = 0, int col = 0, char icon = '-', int hit_points = 100,
-                   int attack_damage = 0)
+                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
             : row_(row), col_(col), map_icon_(icon), hit_points_(hit_points),
-              attack_damage_{attack_damage} {}
+              attack_damage_{attack_damage}, color_pair_(color_pair) {}
 
     std::shared_ptr<Actor> get_ptr();
 
@@ -50,12 +51,15 @@ public:
 //  Possible underflow bug
     void hit(int dmg) { hit_points_ -= dmg; }
 
+    short color_pair() const { return color_pair_; }
+
 protected:
     int row_;
     int col_;
     char map_icon_;
     int hit_points_;
     int attack_damage_;
+    short color_pair_;
 };
 
 
@@ -91,7 +95,7 @@ public:
 class Wall : public Actor
 {
 public:
-    explicit Wall(int row = 0, int col = 0, char icon = '#') : Actor(row, col, icon) {}
+    explicit Wall(int row = 0, int col = 0, char icon = '#') : Actor(row, col, icon, 100, 0, Colors::FULL_WHITE) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 

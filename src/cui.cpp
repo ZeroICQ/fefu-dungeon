@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "game.h"
 #include "map.h"
+#include "colors.h"
 
 using game::Game;
 using std::unique_ptr;
@@ -41,7 +42,11 @@ void cui::Ui::initialize_curses() const
     keypad(stdscr, true);
     curs_set(0);//set cursor invisible
     nodelay(stdscr, true);// no delay moe
+    start_color();
     refresh();
+
+    //define color_pairs
+    game::Colors::initialize();
 }
 
 void cui::Ui::start_game() const
@@ -157,20 +162,27 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
 
     //todo: refactor
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-        if (map_iterator->actor()->row() < start_row || map_iterator->actor()->col() < start_col
-            || map_iterator->actor()->col() >= start_col + getmaxx(game_window)) {
+        auto curr_actor = map_iterator->actor();
+
+        if (curr_actor->row() < start_row || curr_actor->col() < start_col
+            || curr_actor->col() >= start_col + getmaxx(game_window)) {
             continue;
         }
 
-        if (map_iterator->actor()->row() >= start_row + getmaxy(game_window)) {
+        if (curr_actor->row() >= start_row + getmaxy(game_window)) {
             break;
         }
+
 
         mvwaddch(game_window, map_iterator->floor()->row() - start_row, map_iterator->floor()->col() - start_col,
                  static_cast<uint>(map_iterator->floor()->map_icon()));
 
+
+        wattron(game_window, COLOR_PAIR(curr_actor->color_pair()));
         mvwaddch(game_window, map_iterator->actor()->row() - start_row, map_iterator->actor()->col() - start_col,
                  static_cast<uint>(map_iterator->actor()->map_icon()));
+        wattroff(game_window, COLOR_PAIR(curr_actor->color_pair()));
+
     }
 
     overwrite(game_window, status_window);
