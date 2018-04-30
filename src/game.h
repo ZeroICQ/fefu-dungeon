@@ -18,6 +18,8 @@ public:
     int get_map_width() const { return map_->width(); }
     int get_map_height() const { return map_->height(); }
 
+    std::shared_ptr<Actor> get_main_char();
+
 private:
     std::shared_ptr<Map> map_;
 };

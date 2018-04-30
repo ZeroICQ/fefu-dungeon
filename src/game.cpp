@@ -8,7 +8,7 @@ game::Game::Game()
     const std::vector<std::string> map = {
             "###################################################################",
             "#                                                                 #",
-            "#                                                                 #",
+            "#                                                               G #",
             "#                #    #   #######   #    #                        #",
             "#                #   #    #         #   #                         #",
             "#                #  #     #  G      #  #                          #",
@@ -18,7 +18,7 @@ game::Game::Game()
             "#                #  #     #         #  #                          #",
             "#                #   #    #         #   #                         #",
             "#                #    #   #         #    #                        #",
-            "#                #     #  #######   #     #                       #",
+            "#          G     #     #  #######   #     #                       #",
             "#                                                                 #",
             "#                                                                 #",
             "#                           G                                     #",
@@ -61,4 +61,16 @@ void game::Game::handle_controls(game::GameControls control)
 
     EventManager::instance().trigger_all(map_);
 
+}
+
+std::shared_ptr<game::Actor> game::Game::get_main_char()
+{
+    for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
+        if (map_iterator->actor()->is_playable()) {
+            return map_iterator->actor();
+        }
+    }
+
+    //meh...
+    return nullptr;
 }

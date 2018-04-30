@@ -28,6 +28,7 @@ public:
     std::shared_ptr<Actor> get_ptr();
 
     char map_icon() const { return map_icon_; }
+
     int row() const { return row_; }
     void row(int replace) { row_ = replace; }
     int col() const { return col_; }
@@ -42,6 +43,7 @@ public:
 
     //flags
     virtual bool is_transparent() { return false; }
+    virtual bool is_playable() { return false; }
 
     int hp() { return hit_points_; }
     void hp(int s_hp) { hit_points_ = s_hp; }
@@ -115,6 +117,9 @@ public:
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+
+    //flags
+    bool is_playable() override { return true; }
 };
 
 
