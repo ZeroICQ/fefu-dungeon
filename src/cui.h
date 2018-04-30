@@ -15,7 +15,8 @@ private:
     const int STATUS_MENU_WIDTH = 30;
     void initialize_curses() const;
     void start_game() const;
-    void update_game_frame(WINDOW* game_window, WINDOW* status_window, const game::Game& game, bool is_resized) const;
+    void update_game_frame(WINDOW* game_window, WINDOW* status_window, const game::Game& game,
+                           std::shared_ptr<game::Actor> main_char, bool is_resized) const;
 };
 
 }//namespace cui

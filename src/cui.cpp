@@ -56,7 +56,9 @@ void cui::Ui::start_game() const
 
     game_window = newwin(0, 0, 0, 0);
 
-    update_game_frame(game_window, status_window, current_game, true);
+    auto main_char = current_game.get_main_char();
+
+    update_game_frame(game_window, status_window, current_game, main_char, true);
     game::GameControls player_selection = game::GameControls::idle;
 
     int prev_max_x = getmaxx(stdscr);
@@ -100,7 +102,7 @@ void cui::Ui::start_game() const
         }
 
         current_game.handle_controls(player_selection);
-        update_game_frame(game_window, status_window, current_game, is_resized);
+        update_game_frame(game_window, status_window, current_game, main_char, is_resized);
 
 
     } while(!exit_game);
@@ -115,7 +117,8 @@ void cui::Ui::start_game() const
     delwin(status_window);
 }
 
-void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game, bool is_resized) const
+void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game,
+                                std::shared_ptr<game::Actor> main_char, bool is_resized) const
 {
 //    newwin(map_height, map_width, (LINES - map_height) / 2, (COLS - map_width) / 2);
 
@@ -124,11 +127,12 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
         mvwin(status_window, 0, COLS - STATUS_MENU_WIDTH);
         wclear(status_window);
 
+        //position
         wresize(game_window,
                 std::min(game.get_map_height(), LINES),
                 std::min(game.get_map_width(), COLS - STATUS_MENU_WIDTH));
 
-        //center game window
+
         mvwin(game_window, std::max((LINES - game.get_map_height()) / 2, 0), getbegx(game_window));
         mvwin(game_window, getbegy(game_window), std::max((COLS - game.get_map_width() - STATUS_MENU_WIDTH) / 2, 0));
 
@@ -139,12 +143,33 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
 
     mvwaddstr(status_window, 0,0, "012345678901234567890123456789");
 
+    //center camera on main character
+    int start_row = main_char->row() - getmaxy(game_window) / 2;
+    int start_col = main_char->col() - getmaxx(game_window) / 2;
+
+    //top-left bounds
+    start_row = std::max(start_row, 0);
+    start_col = std::max(start_col, 0);
+    //bot-right bounds
+    start_row = std::min(start_row, game.get_map_height() - getmaxy(game_window));
+    start_col = std::min(start_col, game.get_map_width()  - getmaxx(game_window));
+
+
+    //todo: refactor
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-        //ASK: definition in loop
-        mvwaddch(game_window, map_iterator->floor()->row(), map_iterator->floor()->col(),
+        if (map_iterator->actor()->row() < start_row || map_iterator->actor()->col() < start_col
+            || map_iterator->actor()->col() >= start_col + getmaxx(game_window)) {
+            continue;
+        }
+
+        if (map_iterator->actor()->row() >= start_row + getmaxy(game_window)) {
+            break;
+        }
+
+        mvwaddch(game_window, map_iterator->floor()->row() - start_row, map_iterator->floor()->col() - start_col,
                  static_cast<uint>(map_iterator->floor()->map_icon()));
 
-        mvwaddch(game_window, map_iterator->actor()->row(), map_iterator->actor()->col(),
+        mvwaddch(game_window, map_iterator->actor()->row() - start_row, map_iterator->actor()->col() - start_col,
                  static_cast<uint>(map_iterator->actor()->map_icon()));
     }
 
