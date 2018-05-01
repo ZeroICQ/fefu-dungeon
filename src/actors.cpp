@@ -65,6 +65,28 @@ void game::EmptyActor::collide(game::ActiveActor& other, const shared_ptr<game::
 
 void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) {
     enum Directions {up, right, down, left, count};
+    //TODO: move? to map as "find_main_character_near"
+    //if player is near hit him
+
+    bool is_player_near = false;
+    //TODO: refactor
+    if (map->is_inbound(row()-1, col()) && !map->get_cell(row()-1, col())->actor()->is_enemy()) {
+        map->get_cell(row()-1, col())->actor()->collide(*this, map);
+        is_player_near = true;
+    } else if (map->is_inbound(row()+1, col()) && !map->get_cell(row()+1, col())->actor()->is_enemy()) {
+        map->get_cell(row()+1, col())->actor()->collide(*this, map);
+        is_player_near = true;
+    } else if (map->is_inbound(row(), col()-1) && !map->get_cell(row(), col()-1)->actor()->is_enemy()) {
+        map->get_cell(row(), col()-1)->actor()->collide(*this, map);
+        is_player_near = true;
+    } else if (map->is_inbound(row(), col()+1) && !map->get_cell(row(), col()+1)->actor()->is_enemy()) {
+        map->get_cell(row(), col()+1)->actor()->collide(*this, map);
+        is_player_near = true;
+    }
+
+    if (is_player_near) {
+        return;
+    }
 
     int rnd_direction = rand() % (count);
 
