@@ -1,3 +1,4 @@
+#include <cmath>
 #include "cui.h"
 #include "menu.h"
 #include "game.h"
@@ -197,12 +198,13 @@ cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, std
         wclear(status_window);
     }
 
+    touchwin(status_window);
     box(status_window, 0 , 0);
 
     //fill status window
     print_param_status(status_window, 1, 1, std::string(1, main_char->map_icon()), "FEFU student");
-    print_param_status(status_window, 2, 1, "HP", std::to_string(main_char->cur_hp()));
-    print_progressbar(status_window, 3 , 1, main_char->cur_hp(), main_char->max_hp());
+    print_param_status(status_window, 2, 1, "HP", std::to_string(main_char->curr_hp()));
+    print_progressbar(status_window, 3 , 1, main_char->curr_hp(), main_char->max_hp());
 
 }
 
@@ -229,7 +231,10 @@ void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val
     //-1 for border
     int bar_max_width = std::max(window_width - col - 1, 0);
 
-    int bar_cur_width = val / max * bar_max_width;
+    int bar_cur_width = static_cast<int>(std::ceil(static_cast<double>(val) / max * bar_max_width));
 
+    mvwhline(status_window, row, col, ' ', bar_max_width);
+//    wattron(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));
     mvwhline(status_window, row, col, '#', bar_cur_width);
+//    wattroff(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));
 }

@@ -42,5 +42,6 @@ void game::MoveEvent::trigger(std::shared_ptr<Map> map)
 }
 
 void game::DamageEvent::trigger(std::shared_ptr<game::Map> map) {
-//TODO:    damage
+    int new_hp = actor_to_->curr_hp() - actor_from_->attack_damage();
+    actor_to_->curr_hp(new_hp);
 }

@@ -48,8 +48,17 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
 
+void game::MainCharActor::collide(game::ActiveActor& other, const shared_ptr<game::Map> map)
+{
+    if (!other.is_enemy()) {
+        return;
+    }
 
-void game::EmptyActor::collide(game::ActiveActor& other, shared_ptr<game::Map> map)
+    EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
+}
+
+
+void game::EmptyActor::collide(game::ActiveActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_move(other.get_ptr(), row_, col_);
 }

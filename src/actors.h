@@ -45,14 +45,16 @@ public:
     //flags
     virtual bool is_transparent() const { return false; }
     virtual bool is_playable() const { return false; }
+    virtual bool is_enemy() const { return true; }
 
+    //getters and setters
     int max_hp() const { return max_hp_; }
     void max_hp(int max_hp) { max_hp_ = max_hp; }
 
-    int cur_hp() const { return curr_hp_; }
+    int curr_hp() const { return curr_hp_; }
+    void curr_hp(int curr_hp) { curr_hp_ = curr_hp; }
 
-//  Possible underflow bug
-    void hit(int dmg) { curr_hp_ -= dmg; }
+    int attack_damage() { return attack_damage_; }
 
     short color_pair() const { return color_pair_; }
 
@@ -125,17 +127,20 @@ public:
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
 
     //flags
     bool is_playable() const override { return true; }
+    bool is_enemy() const override { return false; }
 };
 
 
 class EnemyActor : public ActiveActor
 {
 public:
-    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E', int hit_points = 0)
-            : ActiveActor(row, col, icon, hit_points) {}
+    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E', int hit_points = 0,
+            int attack_damage = 100)
+            : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 };
@@ -144,8 +149,8 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 50)
-            : EnemyActor(row, col, icon, hit_points) {}
+    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 50, int attack_damage = 100)
+            : EnemyActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
 //    void move(GameControls control, Map& map) override;
