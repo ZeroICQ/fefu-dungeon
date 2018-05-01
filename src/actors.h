@@ -21,9 +21,9 @@ class ActiveActor;
 class Actor: public std::enable_shared_from_this<Actor>
 {
 public:
-    explicit Actor(int row = 0, int col = 0, char icon = '-', int hit_points = 100,
+    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
                    int attack_damage = 0, short color_pair = Colors::DEFAULT)
-            : row_(row), col_(col), map_icon_(icon), hit_points_(hit_points),
+            : row_(row), col_(col), map_icon_(icon), max_hp_(max_hp), curr_hp_(max_hp),
               attack_damage_{attack_damage}, color_pair_(color_pair) {}
 
     std::shared_ptr<Actor> get_ptr();
@@ -43,13 +43,16 @@ public:
     virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map) {}
 
     //flags
-    virtual bool is_transparent() { return false; }
-    virtual bool is_playable() { return false; }
+    virtual bool is_transparent() const { return false; }
+    virtual bool is_playable() const { return false; }
 
-    int hp() { return hit_points_; }
-    void hp(int s_hp) { hit_points_ = s_hp; }
+    int max_hp() const { return max_hp_; }
+    void max_hp(int max_hp) { max_hp_ = max_hp; }
+
+    int cur_hp() const { return curr_hp_; }
+
 //  Possible underflow bug
-    void hit(int dmg) { hit_points_ -= dmg; }
+    void hit(int dmg) { curr_hp_ -= dmg; }
 
     short color_pair() const { return color_pair_; }
 
@@ -57,7 +60,8 @@ protected:
     int row_;
     int col_;
     char map_icon_;
-    int hit_points_;
+    int max_hp_;
+    int curr_hp_;
     int attack_damage_;
     short color_pair_;
 };
@@ -88,7 +92,7 @@ public:
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
 
-    bool is_transparent() final { return true; }
+    bool is_transparent() const final { return true; }
 };
 
 
@@ -123,7 +127,7 @@ public:
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 
     //flags
-    bool is_playable() override { return true; }
+    bool is_playable() const override { return true; }
 };
 
 

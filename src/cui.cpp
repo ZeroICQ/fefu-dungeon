@@ -57,8 +57,6 @@ void cui::Ui::start_game() const
     Game current_game;
 
     status_window = newwin(0, 0, 0, 0);
-    box(status_window, 0, 0);
-
     game_window = newwin(0, 0, 0, 0);
 
     auto main_char = current_game.get_main_char();
@@ -99,6 +97,7 @@ void cui::Ui::start_game() const
                 break;
         }
 
+        //detect terminal resize
         if (prev_max_x != getmaxx(stdscr) || prev_max_y != getmaxy(stdscr)) {
             prev_max_x = getmaxx(stdscr);
             prev_max_y = getmaxy(stdscr);
@@ -108,8 +107,6 @@ void cui::Ui::start_game() const
 
         current_game.handle_controls(player_selection);
         update_game_frame(game_window, status_window, current_game, main_char, is_resized);
-
-
     } while(!exit_game);
 
     wclear(game_window);
@@ -125,26 +122,29 @@ void cui::Ui::start_game() const
 void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game,
                                 std::shared_ptr<game::Actor> main_char, bool is_resized) const
 {
-//    newwin(map_height, map_width, (LINES - map_height) / 2, (COLS - map_width) / 2);
+    update_status_window(status_window, game, main_char, is_resized);
+    update_game_window(game_window, game, main_char, is_resized);
 
     if (is_resized) {
-        wresize(status_window, LINES, STATUS_MENU_WIDTH);
-        mvwin(status_window, 0, COLS - STATUS_MENU_WIDTH);
-        wclear(status_window);
+        wclear(stdscr);
+    }
 
-        //position
+    overwrite(game_window, status_window);
+    wrefresh(game_window);
+    wrefresh(status_window);
+}
+
+void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,
+                                 std::shared_ptr<game::Actor> main_char, bool is_resized) const
+{
+    if (is_resized) {
         wresize(game_window,
                 std::min(game.get_map_height(), LINES),
                 std::min(game.get_map_width(), COLS - STATUS_MENU_WIDTH));
 
-
         mvwin(game_window, std::max((LINES - game.get_map_height()) / 2, 0), getbegx(game_window));
         mvwin(game_window, getbegy(game_window), std::max((COLS - game.get_map_width() - STATUS_MENU_WIDTH) / 2, 0));
-
-        wclear(stdscr);
     }
-
-    box(status_window, 0 , 0);
 
     //center camera on main character
     int start_row = main_char->row() - getmaxy(game_window) / 2;
@@ -157,8 +157,6 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
     start_row = std::min(start_row, game.get_map_height() - getmaxy(game_window));
     start_col = std::min(start_col, game.get_map_width()  - getmaxx(game_window));
 
-
-    //todo: refactor?
     for (auto map_iterator = game.map_const_iterator(); !map_iterator->is_end(); map_iterator->next()) {
         auto curr_actor = map_iterator->actor();
         auto curr_floor = map_iterator->floor();
@@ -186,10 +184,40 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
 
     }
 
-    //fill status window
-//    TODO: continue
+}
 
-    overwrite(game_window, status_window);
-    wrefresh(game_window);
-    wrefresh(status_window);
+void
+
+cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, std::shared_ptr<game::Actor> main_char,
+                              bool is_resized) const
+{
+    if (is_resized) {
+        wresize(status_window, LINES, STATUS_MENU_WIDTH);
+        mvwin(status_window, 0, COLS - STATUS_MENU_WIDTH);
+        wclear(status_window);
+    }
+
+    box(status_window, 0 , 0);
+
+    //fill status window
+    print_param_status(status_window, 1, 1, std::string(1, main_char->map_icon()), "FEFU student");
+    print_param_status(status_window, 2, 1, "HP", std::to_string(main_char->cur_hp()));
+
+}
+
+void cui::Ui::print_param_status(WINDOW* status_window, int row, int col, const std::string& name, const std::string& value) const
+{
+    auto name_width =  static_cast<int>(name.length());
+    auto value_width =  static_cast<int>(value.length());
+
+    int window_width = getmaxx(status_window);
+    //-1 for border
+    int dots_width = window_width - col - name_width - value_width - 1;
+    dots_width = std::max(dots_width, 0);
+
+    mvwaddstr(status_window, row, col, name.c_str());
+    mvwaddstr(status_window, row, window_width - value_width - 1, value.c_str());
+
+    mvwhline(status_window, row, col + name_width, '.', dots_width);
+
 }
