@@ -202,6 +202,7 @@ cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, std
     //fill status window
     print_param_status(status_window, 1, 1, std::string(1, main_char->map_icon()), "FEFU student");
     print_param_status(status_window, 2, 1, "HP", std::to_string(main_char->cur_hp()));
+    print_progressbar(status_window, 3 , 1, main_char->cur_hp(), main_char->max_hp());
 
 }
 
@@ -220,4 +221,15 @@ void cui::Ui::print_param_status(WINDOW* status_window, int row, int col, const 
 
     mvwhline(status_window, row, col + name_width, '.', dots_width);
 
+}
+
+void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val, int max) const
+{
+    int window_width = getmaxx(status_window);
+    //-1 for border
+    int bar_max_width = std::max(window_width - col - 1, 0);
+
+    int bar_cur_width = val / max * bar_max_width;
+
+    mvwhline(status_window, row, col, '#', bar_cur_width);
 }
