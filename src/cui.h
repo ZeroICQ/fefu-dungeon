@@ -27,6 +27,7 @@ private:
                             const std::string& name, const std::string& value) const;
 
     void print_progressbar(WINDOW* status_window, int row, int col, int val, int max) const;
+    void print_message(WINDOW* window, std::string message) const;
 };
 
 }//namespace cui

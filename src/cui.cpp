@@ -113,6 +113,16 @@ void cui::Ui::start_game() const
         exit_game = current_game.status() != game::GameStatus::in_progress ? true : exit_game;
     } while(!exit_game);
 
+    if (current_game.status() == game::GameStatus::lost) {
+        print_message(game_window, "LOL, YOU DIED!");
+    } else if (current_game.status() == game::GameStatus::won) {
+        print_message(game_window, "YOU WON!");
+    }
+
+    while (getch() == ERR) {
+        //wait for input
+    }
+
     wclear(game_window);
     wrefresh(game_window);
 
@@ -238,4 +248,13 @@ void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val
 //    wattron(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));
     mvwhline(status_window, row, col, '#', bar_cur_width);
 //    wattroff(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));
+}
+
+void cui::Ui::print_message(WINDOW* window, std::string message) const
+{
+    wclear(window);
+    int center_row = getmaxy(window) / 2;
+    int center_col = (getmaxx(window) - static_cast<int>(message.length())) / 2;
+    mvwaddstr(window, center_row, center_col, message.c_str());
+    wrefresh(window);
 }
