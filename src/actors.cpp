@@ -11,6 +11,7 @@ game::ActorFactory::ActorFactory()
     add_actor<MainCharActor>();
     add_actor<EmptyActor>();
     add_actor<GuardActor>();
+    add_actor<Target>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
@@ -122,6 +123,12 @@ shared_ptr<game::Actor> game::Actor::get_ptr()
     return shared_from_this();
 }
 
+//ASK: is it cancer?
+void game::Actor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
+{
+    this->collide(*static_cast<ActiveActor*>(&other), map);
+}
+
 //ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
 void game::EnemyActor::collide(game::ActiveActor &other, const shared_ptr<game::Map> map)
 {
@@ -130,4 +137,9 @@ void game::EnemyActor::collide(game::ActiveActor &other, const shared_ptr<game::
     }
 
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
+}
+
+void game::Target::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
+{
+    //TODO: you win
 }

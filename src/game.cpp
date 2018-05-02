@@ -12,7 +12,7 @@ game::Game::Game()
             "#                #    #   #######   #    #                        #",
             "#                #   #    #         #   #                         #",
             "#                #  #     #  G      #  #                          #",
-            "#                # #      #         # #                           #",
+            "#                # #      #         # #               Z           #",
             "#         G      ##GS     #######   ##                            #",
             "#                # #      #         # #                           #",
             "#                #  #     #         #  #                          #",
@@ -65,8 +65,9 @@ void game::Game::handle_controls(game::GameControls control)
         auto curr_actor = map_iterator->actor();
 
         if (curr_actor->is_dead()) {
+
             if (curr_actor->is_playable()) {
-                status_ = GameStatus::lost;
+                status(GameStatus::lost);
             }
             map_->remove_actor(curr_actor->row(), curr_actor->col());
         }
@@ -84,4 +85,11 @@ std::shared_ptr<game::Actor> game::Game::get_main_char()
 
     //meh...
     return nullptr;
+}
+
+void game::Game::status(game::GameStatus n_status)
+{
+    if (status_ != GameStatus::won) {
+        status_ = n_status;
+    }
 }

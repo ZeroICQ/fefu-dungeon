@@ -41,6 +41,7 @@ public:
 
     virtual void collide(Actor& other, const std::shared_ptr<Map> map) = 0;
     virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map) {}
+    virtual void collide(MainCharActor& other, const std::shared_ptr<Map> map);
 
     //flags
     virtual bool is_transparent() const { return false; }
@@ -106,6 +107,14 @@ public:
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 
+};
+
+class Target : public Actor
+{
+public:
+    explicit Target(int row = 0, int col = 0, char icon = 'Z') : Actor(row, col, icon) {}
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 };
 
 

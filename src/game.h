@@ -20,6 +20,8 @@ public:
     int get_map_height() const { return map_->height(); }
 
     GameStatus status() { return status_; }
+    void status(GameStatus n_status);
+
     std::shared_ptr<Actor> get_main_char();
 
 private:
