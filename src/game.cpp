@@ -8,21 +8,21 @@ game::Game::Game()
 {
     const std::vector<std::string> map = {
             "###################################################################",
-            "#                                                                 #",
+            "#    T                                                            #",
             "#                                                               G #",
             "#                #    #   #######   #    #                        #",
             "#                #   #    #         #   #                         #",
-            "#                #  #     #  G      #  #                          #",
+            "#                #  #     #         #  #                          #",
             "#                # #      #         # #               Z           #",
-            "#         G      ##GS     #######   ##                            #",
+            "#                ##GS     #######   ##                            #",
             "#                # #      #         # #                           #",
             "#                #  #     #         #  #                          #",
             "#                #   #    #         #   #                         #",
             "#                #    #   #         #    #                        #",
-            "#          G     #     #  #######   #     #                       #",
+            "#                #     #  #######   #     #                       #",
             "#                                                                 #",
             "#                                                                 #",
-            "#                           G                                     #",
+            "#   G                                                   T         #",
             "#                                                                 #",
             "###################################################################"};
 
@@ -78,14 +78,7 @@ void game::Game::handle_controls(game::GameControls control)
 
 std::shared_ptr<game::Actor> game::Game::get_main_char()
 {
-    for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
-        if (map_iterator->actor()->is_playable()) {
-            return map_iterator->actor();
-        }
-    }
-
-    //meh...
-    return nullptr;
+    return map_->get_main_char();
 }
 
 void game::Game::status(game::GameStatus n_status)

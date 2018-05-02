@@ -1,5 +1,6 @@
 #include <vector>
 #include <random>
+#include <termcap.h>
 #include "actors.h"
 #include "event_system.h"
 
@@ -13,6 +14,7 @@ game::ActorFactory::ActorFactory()
     add_actor<EmptyActor>();
     add_actor<GuardActor>();
     add_actor<TargetActor>();
+    add_actor<TeacherActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
@@ -62,51 +64,19 @@ void game::EmptyActor::collide(game::ActiveActor& other, const shared_ptr<game::
 }
 
 void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) {
-    enum Directions {up, right, down, left, count};
-    //TODO: move? to map as "find_main_character_near"
-    //if player is near hit him
+    MapSearchResult player_search = map->find_player_near(row(), col());
 
-    bool is_player_near = false;
-    //TODO: refactor
-    if (map->is_inbound(row()-1, col()) && !map->get_cell(row()-1, col())->actor()->is_enemy()) {
-        map->get_cell(row()-1, col())->actor()->collide(*this, map);
-        is_player_near = true;
-    } else if (map->is_inbound(row()+1, col()) && !map->get_cell(row()+1, col())->actor()->is_enemy()) {
-        map->get_cell(row()+1, col())->actor()->collide(*this, map);
-        is_player_near = true;
-    } else if (map->is_inbound(row(), col()-1) && !map->get_cell(row(), col()-1)->actor()->is_enemy()) {
-        map->get_cell(row(), col()-1)->actor()->collide(*this, map);
-        is_player_near = true;
-    } else if (map->is_inbound(row(), col()+1) && !map->get_cell(row(), col()+1)->actor()->is_enemy()) {
-        map->get_cell(row(), col()+1)->actor()->collide(*this, map);
-        is_player_near = true;
-    }
-
-    if (is_player_near) {
+    if (player_search.is_found) {
+        map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
         return;
     }
 
-    int rnd_direction = rand() % (count);
+    Directions rnd_direction = RndHelper::rand_direction();
 
     int desired_row = row();
     int desired_col = col();
 
-    switch (rnd_direction) {
-        case Directions::up:
-            desired_row -= 1;
-            break;
-        case Directions::right:
-            desired_col += 1;
-            break;
-        case Directions::down:
-            desired_row += 1;
-            break;
-        case Directions::left:
-            desired_col -= 1;
-            break;
-        default:
-            break;
-    }
+    direction_to_coord(rnd_direction, desired_row, desired_col);
 
     if (!map->is_inbound(desired_row, desired_col)) {
         return;
@@ -131,6 +101,37 @@ void game::Actor::collide(game::EnemyActor &other, const shared_ptr<game::Map> m
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
+void game::Actor::direction_to_coord(game::Directions direction, int &row, int &col) const
+{
+    switch (direction) {
+        case Directions::UP:
+            row -= 1;
+            break;
+        case Directions::RIGHT:
+            col += 1;
+            break;
+        case Directions::DOWN:
+            row += 1;
+            break;
+        case Directions::LEFT:
+            col -= 1;
+            break;
+    }
+}
+
+game::Directions game::Actor::coord_to_direction(int s_row, int s_col, int d_row, int d_col) const
+{
+    if (d_col - s_col == -1) {
+        return Directions::LEFT;
+    } else if (d_col - s_col == 1) {
+        return Directions::RIGHT;
+    } else if (d_row - s_row == 1) {
+        return Directions::DOWN;
+    } else {
+        return  Directions::UP;
+    }
+}
+
 //ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
@@ -152,4 +153,61 @@ short game::EnemyActor::color_pair() const
 void game::TargetActor::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_target_reached();
+}
+
+void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
+{
+    if (RndHelper::rand_yes_no(0.1) == YesOrNo::YES) {
+        direction_ = RndHelper::rand_direction();
+    }
+
+    int desired_row = row();
+    int desired_col = col();
+
+
+
+    direction_to_coord(direction_, desired_row, desired_col);
+
+    if (!map->is_inbound(desired_row, desired_col)) {
+        return;
+    }
+
+    if (!map->get_cell(desired_row, desired_col)->actor()->is_transparent()) {
+        MapSearchResult search_result = map->find_transparent_near(row(), col());
+
+        if (search_result.is_found) {
+            direction_ = coord_to_direction(row(), col(), search_result.row, search_result. col);
+            map->get_cell(search_result.row, search_result.col)->actor()->collide(*this, map);
+        }
+    }
+
+    map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
+}
+
+game::Directions game::RndHelper::rand_direction()
+{
+    int rnd_direction = rand() % 4;
+
+    switch (rnd_direction) {
+        case 0:
+            return Directions::UP;
+        case 1:
+            return Directions::LEFT;
+        case 2:
+            return Directions::DOWN;
+        case 3:
+            return Directions::RIGHT;
+        default:
+            return Directions::UP;
+    }
+}
+
+game::YesOrNo game::RndHelper::rand_yes_no(double yes_percent)
+{
+    int rnd_choice = rand();
+    if (rnd_choice <= RAND_MAX * yes_percent) {
+        return YesOrNo::YES;
+    } else {
+        return YesOrNo::NO;
+    }
 }

@@ -10,6 +10,19 @@
 
 namespace game {
 
+enum class Directions {UP, RIGHT, DOWN, LEFT};
+enum class YesOrNo {YES, NO};
+
+class RndHelper
+{
+public:
+    static Directions rand_direction();
+    static YesOrNo rand_yes_no(double yes_percent);
+private:
+    RndHelper() = default;
+};
+
+
 //fd circular dependency
 class Map;
 class MapCell;
@@ -62,6 +75,9 @@ public:
     virtual short color_pair() const { return color_pair_; }
 
 protected:
+    void direction_to_coord(Directions direction, int& row, int& col) const ;
+    Directions coord_to_direction(int s_row, int s_col, int d_row, int d_col) const;
+
     int row_;
     int col_;
     char map_icon_;
@@ -135,7 +151,7 @@ public:
 class MainCharActor : public ActiveActor
 {
 public:
-    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 1500, int attack_damage = 50)
+    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 1000, int attack_damage = 50)
             : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, std::shared_ptr<Map> map) override;
@@ -166,13 +182,25 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 1000, int attack_damage = 50)
+    explicit GuardActor(int row = 0, int col = 0, char icon = 'G', int hit_points = 100, int attack_damage = 20)
             : EnemyActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
 //    void move(GameControls control, Map& map) override;
 
 //    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
+};
+
+class TeacherActor : public EnemyActor
+{
+public:
+    explicit TeacherActor(int row = 0, int col = 0, char icon = 'T', int hit_points = 1000, int attack_damage = 25)
+             : EnemyActor(row, col, icon, hit_points, attack_damage), direction_{RndHelper::rand_direction()} {}
+
+    void move(GameControls controls, const std::shared_ptr<Map> map) override;
+
+private:
+    Directions direction_;
 };
 
 
