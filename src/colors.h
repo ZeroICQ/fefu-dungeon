@@ -10,6 +10,7 @@ public:
     static const short FULL_WHITE = 1;
     static const short YELLOW_BLACK = 2;
     static const short RED_BLACK = 3;
+    static const short CYAN_BLACK = 4;
 
     static void initialize();
 private:

@@ -188,6 +188,7 @@ void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,
         wattroff(game_window, COLOR_PAIR(curr_floor->color_pair()));
 
         wattron(game_window, COLOR_PAIR(curr_actor->color_pair()));
+
         mvwaddch(game_window, map_iterator->actor()->row() - start_row, map_iterator->actor()->col() - start_col,
                  static_cast<uint>(map_iterator->actor()->map_icon()));
         wattroff(game_window, COLOR_PAIR(curr_actor->color_pair()));
@@ -210,7 +211,8 @@ cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, std
 
     //fill status window
     print_param_status(status_window, 1, 1, std::string(1, main_char->map_icon()), "FEFU student");
-    print_param_status(status_window, 2, 1, "HP", std::to_string(main_char->curr_hp()));
+    print_param_status(status_window, 2, 1, "HP",
+                       std::to_string(main_char->curr_hp())+"/"+ std::to_string(main_char->max_hp()));
     print_progressbar(status_window, 3 , 1, main_char->curr_hp(), main_char->max_hp());
 
 }
@@ -248,13 +250,17 @@ void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val
 
 void cui::Ui::print_message(WINDOW* window, std::string message) const
 {
+    std::string continue_message = "Press <enter> to continue";
     wclear(window);
     int center_row = getmaxy(window) / 2;
     int center_col = (getmaxx(window) - static_cast<int>(message.length())) / 2;
     mvwaddstr(window, center_row, center_col, message.c_str());
+
+    int center_col_cont_message = (getmaxx(window) - static_cast<int>(continue_message.length())) / 2;
+    mvwaddstr(window, center_row + 2, center_col_cont_message, continue_message.c_str());
     wrefresh(window);
 
-    while (getch() == ERR) {
+    while (getch() != REAL_KEY_ENTER) {
         //wait for input
     }
 }

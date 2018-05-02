@@ -12,7 +12,7 @@ game::ActorFactory::ActorFactory()
     add_actor<MainCharActor>();
     add_actor<EmptyActor>();
     add_actor<GuardActor>();
-    add_actor<Target>();
+    add_actor<TargetActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
@@ -149,7 +149,7 @@ short game::EnemyActor::color_pair() const
     }
 }
 
-void game::Target::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
+void game::TargetActor::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_target_reached();
 }

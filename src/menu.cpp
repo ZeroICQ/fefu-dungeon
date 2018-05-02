@@ -57,6 +57,7 @@ int cui::Menu::show()
                 continue;
             case KEY_F(1):
             case 'e':
+            case 'q':
                 return -1;
             case KEY_ENTER:
             case REAL_KEY_ENTER:

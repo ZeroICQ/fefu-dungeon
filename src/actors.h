@@ -111,10 +111,12 @@ public:
 };
 
 
-class Target : public Actor
+class TargetActor : public Actor
 {
 public:
-    explicit Target(int row = 0, int col = 0, char icon = 'Z') : Actor(row, col, icon) {}
+    explicit TargetActor(int row = 0, int col = 0, char icon = 'Z', int max_hp = 100, int attack_damage = 0,
+            short colors_pair = Colors::CYAN_BLACK)
+            : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 };
