@@ -2,6 +2,7 @@
 SET(GCC_COMPILE_FLAGS "-Wall -pedantic")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COMPILE_FLAGS}")
 
+add_subdirectory(lib/libconfig)
 find_package(Curses REQUIRED)
 
 if (NOT CURSES_FOUND)
@@ -21,5 +22,6 @@ set(SRC
 
 add_executable(${PROJECT_NAME} ${SRC})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CURSES_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CURSES_INCLUDE_DIRS} lib/libconfig/lib)
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${CURSES_LIBRARIES} libconfig++)
+

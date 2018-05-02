@@ -1,3 +1,4 @@
+#include <libconfig.h++>
 #include "game.h"
 #include "event_system.h"
 
