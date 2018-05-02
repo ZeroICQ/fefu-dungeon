@@ -12,7 +12,6 @@ public:
 private:
     Colors() = delete;
     ~Colors() = delete;
-
 };
 
 }//namespace game

@@ -121,3 +121,13 @@ shared_ptr<game::Actor> game::Actor::get_ptr()
 {
     return shared_from_this();
 }
+
+//ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
+void game::EnemyActor::collide(game::ActiveActor &other, const shared_ptr<game::Map> map)
+{
+    if (other.is_enemy()) {
+        return;
+    }
+
+    EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
+}

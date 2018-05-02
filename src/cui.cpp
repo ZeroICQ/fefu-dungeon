@@ -4,6 +4,7 @@
 #include "game.h"
 #include "map.h"
 #include "colors.h"
+#include "statuses.h"
 
 using game::Game;
 using std::unique_ptr;
@@ -108,6 +109,8 @@ void cui::Ui::start_game() const
 
         current_game.handle_controls(player_selection);
         update_game_frame(game_window, status_window, current_game, main_char, is_resized);
+
+        exit_game = current_game.status() != game::GameStatus::in_progress;
     } while(!exit_game);
 
     wclear(game_window);
@@ -182,9 +185,7 @@ void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,
         mvwaddch(game_window, map_iterator->actor()->row() - start_row, map_iterator->actor()->col() - start_col,
                  static_cast<uint>(map_iterator->actor()->map_icon()));
         wattroff(game_window, COLOR_PAIR(curr_actor->color_pair()));
-
     }
-
 }
 
 void
@@ -231,9 +232,9 @@ void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val
     //-1 for border
     int bar_max_width = std::max(window_width - col - 1, 0);
 
-    int bar_cur_width = static_cast<int>(std::ceil(static_cast<double>(val) / max * bar_max_width));
+    auto bar_cur_width = static_cast<int>(std::ceil(static_cast<double>(val) / max * bar_max_width));
 
-    mvwhline(status_window, row, col, ' ', bar_max_width);
+    mvwhline(status_window, row, col, '-', bar_max_width);
 //    wattron(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));
     mvwhline(status_window, row, col, '#', bar_cur_width);
 //    wattroff(status_window, COLOR_PAIR(game::Colors::FULL_WHITE));

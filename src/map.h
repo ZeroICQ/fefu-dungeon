@@ -26,7 +26,7 @@ public:
     int height() const { return static_cast<int>(map_cells_.size()); }
     std::shared_ptr<game::MapCell> get_cell(int col, int row) const { return map_cells_[col][row]; };
     void move_actor(int row_from, int col_from, int row_to, int col_to, std::shared_ptr<Actor> replace_actor = nullptr);
-
+    void remove_actor(int row, int col, std::shared_ptr<Actor> replace_actor = nullptr);
 private:
     std::vector<std::vector<std::shared_ptr<game::MapCell>>> map_cells_;
 };

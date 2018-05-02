@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "map.h"
+#include "statuses.h"
 
 namespace game {
 
@@ -18,10 +19,12 @@ public:
     int get_map_width() const { return map_->width(); }
     int get_map_height() const { return map_->height(); }
 
+    GameStatus status() { return status_; }
     std::shared_ptr<Actor> get_main_char();
 
 private:
     std::shared_ptr<Map> map_;
+    GameStatus status_ = GameStatus::in_progress;
 };
 
 }//namespace game

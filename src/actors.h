@@ -46,6 +46,7 @@ public:
     virtual bool is_transparent() const { return false; }
     virtual bool is_playable() const { return false; }
     virtual bool is_enemy() const { return true; }
+    virtual bool is_dead() const { return curr_hp_<= 0; }
 
     //getters and setters
     int max_hp() const { return max_hp_; }
@@ -143,6 +144,8 @@ public:
             : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
+
 };
 
 
