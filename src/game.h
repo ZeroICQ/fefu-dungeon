@@ -5,7 +5,6 @@
 #include "statuses.h"
 
 namespace game {
-class MapConstIterator;
 
 class Game
 {
