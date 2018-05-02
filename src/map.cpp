@@ -8,32 +8,32 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::make_unique;
 
-game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map_sketch)
+game::Map::Map(const string& map_sketch, const string& floor_map_sketch)
 {
-    ActorFactory actor_factory;
-    FloorActorFactory floor_factory;
-//    auto map_sketch_size = static_cast<int>(map_sketch.size());
-
-    auto cols = static_cast<int>(map_sketch.front().size());
-    auto rows = static_cast<int>(map_sketch.size());
-
-    map_cells_.reserve(static_cast<ulong>(rows));
-
-    for (int row = 0; row < rows; row++) {
-        map_cells_.emplace_back();
-        map_cells_.back().reserve(static_cast<unsigned long>(cols));
-
-        for (int col = 0; col < cols; col++) {
-            std::shared_ptr<MapCell> curr_map_cell = std::make_shared<MapCell>(
-                    actor_factory.create(map_sketch[row].c_str()[col], row, col),
-                    floor_factory.create(floor_map_sketch[row][col], row, col));
-
-            if (curr_map_cell->actor()->is_playable()) {
-                main_char_ = curr_map_cell->actor();
-            }
-            map_cells_.back().push_back(curr_map_cell);
-        }
-    }
+//    ActorFactory actor_factory;
+//    FloorActorFactory floor_factory;
+////    auto map_sketch_size = static_cast<int>(map_sketch.size());
+//    map_sketch.line
+//    auto cols = static_cast<int>(map_sketch.front().size());
+//    auto rows = static_cast<int>(map_sketch.size());
+//
+//    map_cells_.reserve(static_cast<ulong>(rows));
+//
+//    for (int row = 0; row < rows; row++) {
+//        map_cells_.emplace_back();
+//        map_cells_.back().reserve(static_cast<unsigned long>(cols));
+//
+//        for (int col = 0; col < cols; col++) {
+//            std::shared_ptr<MapCell> curr_map_cell = std::make_shared<MapCell>(
+//                    actor_factory.create(map_sketch[row].c_str()[col], row, col),
+//                    floor_factory.create(floor_map_sketch[row][col], row, col));
+//
+//            if (curr_map_cell->actor()->is_playable()) {
+//                main_char_ = curr_map_cell->actor();
+//            }
+//            map_cells_.back().push_back(curr_map_cell);
+//        }
+//    }
 
 }
 

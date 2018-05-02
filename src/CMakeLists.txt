@@ -25,3 +25,4 @@ add_executable(${PROJECT_NAME} ${SRC})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CURSES_INCLUDE_DIRS} lib/libconfig/lib)
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${CURSES_LIBRARIES} libconfig++)
 
+configure_file(levels/test_1 "${CMAKE_BINARY_DIR}/levels/test_1" COPYONLY)

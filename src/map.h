@@ -28,7 +28,7 @@ struct MapSearchResult
 class Map
 {
 public:
-    Map(const std::vector<std::string>& map_sketch, const std::vector<std::string>& floor_map_sketch);
+    Map(const std::string& map_sketch, const std::string& floor_map_sketch);
     std::unique_ptr<MapConstIterator> const_iterator() const;
     std::unique_ptr<MapIterator> iterator() const;
     bool is_inbound(int row, int col) const;
