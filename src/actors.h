@@ -6,7 +6,6 @@
 #include <memory>
 #include "statuses.h"
 #include "map.h"
-#include "event_system.h"
 #include "colors.h"
 
 namespace game {

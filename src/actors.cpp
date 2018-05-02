@@ -1,6 +1,7 @@
 #include <vector>
 #include <random>
 #include "actors.h"
+#include "event_system.h"
 
 using std::vector;
 using std::shared_ptr;
@@ -138,5 +139,5 @@ void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game
 
 void game::Target::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
 {
-    //TODO: you win
+    EventManager::instance().add_target_reached();
 }
