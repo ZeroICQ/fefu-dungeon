@@ -157,6 +157,13 @@ void game::TargetActor::collide(game::MainCharActor &other, const shared_ptr<gam
 
 void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
 {
+    MapSearchResult player_search = map->find_player_near(row(), col());
+
+    if (player_search.is_found) {
+        map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
+        return;
+    }
+
     if (RndHelper::rand_yes_no(0.1) == YesOrNo::YES) {
         direction_ = RndHelper::rand_direction();
     }

@@ -60,7 +60,7 @@ public:
     //flags
     virtual bool is_transparent() const { return false; }
     virtual bool is_playable() const { return false; }
-    virtual bool is_enemy() const { return true; }
+    virtual bool is_enemy() const { return false; }
     virtual bool is_dead() const { return curr_hp_<= 0; }
 
     //getters and setters
@@ -135,6 +135,7 @@ public:
             : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
+
 };
 
 
@@ -174,6 +175,8 @@ public:
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
+
+    bool is_enemy() const override { return true; }
 
     short color_pair() const override;
 };
