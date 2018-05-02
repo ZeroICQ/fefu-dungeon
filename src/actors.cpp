@@ -49,12 +49,8 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
 
-void game::MainCharActor::collide(game::ActiveActor& other, const shared_ptr<game::Map> map)
+void game::MainCharActor::collide(game::EnemyActor& other, const shared_ptr<game::Map> map)
 {
-    if (!other.is_enemy()) {
-        return;
-    }
-
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
@@ -129,13 +125,14 @@ void game::Actor::collide(game::MainCharActor& other, const shared_ptr<game::Map
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
-//ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
-void game::EnemyActor::collide(game::ActiveActor &other, const shared_ptr<game::Map> map)
+void game::Actor::collide(game::EnemyActor &other, const shared_ptr<game::Map> map)
 {
-    if (other.is_enemy()) {
-        return;
-    }
+    this->collide(*static_cast<ActiveActor*>(&other), map);
+}
 
+//ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
+void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
+{
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 

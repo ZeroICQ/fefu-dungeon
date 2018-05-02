@@ -109,7 +109,7 @@ void cui::Ui::start_game() const
 
         current_game.handle_controls(player_selection);
         update_game_frame(game_window, status_window, current_game, main_char, is_resized);
-
+        
         exit_game = current_game.status() != game::GameStatus::in_progress;
     } while(!exit_game);
 

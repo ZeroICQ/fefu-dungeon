@@ -16,6 +16,7 @@ class Map;
 class MapCell;
 class MainCharActor;
 class EmptyActor;
+class EnemyActor;
 class ActiveActor;
 
 class Actor: public std::enable_shared_from_this<Actor>
@@ -42,6 +43,7 @@ public:
     virtual void collide(Actor& other, const std::shared_ptr<Map> map) = 0;
     virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map) {}
     virtual void collide(MainCharActor& other, const std::shared_ptr<Map> map);
+    virtual void collide(EnemyActor& other, const std::shared_ptr<Map> map);
 
     //flags
     virtual bool is_transparent() const { return false; }
@@ -137,7 +139,7 @@ public:
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
-    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
+    void collide(EnemyActor& other, const std::shared_ptr<Map> map) override;
 
     //flags
     bool is_playable() const override { return true; }
@@ -153,7 +155,7 @@ public:
             : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
-    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
+    void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 
 };
 
