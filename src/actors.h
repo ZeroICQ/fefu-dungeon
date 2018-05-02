@@ -59,7 +59,7 @@ public:
 
     int attack_damage() { return attack_damage_; }
 
-    short color_pair() const { return color_pair_; }
+    virtual short color_pair() const { return color_pair_; }
 
 protected:
     int row_;
@@ -132,7 +132,7 @@ public:
 class MainCharActor : public ActiveActor
 {
 public:
-    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 500, int attack_damage = 100)
+    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 1500, int attack_damage = 50)
             : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, std::shared_ptr<Map> map) override;
@@ -156,13 +156,14 @@ public:
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 
+    short color_pair() const override;
 };
 
 
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 50, int attack_damage = 100)
+    explicit GuardActor(int row = 0, int col = 0, char icon ='G', int hit_points = 1000, int attack_damage = 50)
             : EnemyActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;

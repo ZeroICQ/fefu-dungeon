@@ -137,6 +137,18 @@ void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
+short game::EnemyActor::color_pair() const
+{
+    double hp_percent = static_cast<double>(curr_hp_) / max_hp_;
+    if (hp_percent >= 0.75) {
+        return Colors::DEFAULT;
+    } else if (0.25 <= hp_percent && hp_percent < 0.75) {
+        return Colors::YELLOW_BLACK;
+    } else {
+        return Colors::RED_BLACK;
+    }
+}
+
 void game::Target::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_target_reached();

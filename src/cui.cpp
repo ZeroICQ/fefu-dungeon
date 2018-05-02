@@ -119,10 +119,6 @@ void cui::Ui::start_game() const
         print_message(game_window, "YOU WON!");
     }
 
-    while (getch() == ERR) {
-        //wait for input
-    }
-
     wclear(game_window);
     wrefresh(game_window);
 
@@ -257,4 +253,8 @@ void cui::Ui::print_message(WINDOW* window, std::string message) const
     int center_col = (getmaxx(window) - static_cast<int>(message.length())) / 2;
     mvwaddstr(window, center_row, center_col, message.c_str());
     wrefresh(window);
+
+    while (getch() == ERR) {
+        //wait for input
+    }
 }
