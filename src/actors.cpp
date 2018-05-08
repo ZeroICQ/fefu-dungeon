@@ -90,7 +90,6 @@ shared_ptr<game::Actor> game::Actor::get_ptr()
     return shared_from_this();
 }
 
-//ASK: is it cancer?
 void game::Actor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     this->collide(*static_cast<ActiveActor*>(&other), map);
@@ -132,7 +131,6 @@ game::Directions game::Actor::coord_to_direction(int s_row, int s_col, int d_row
     }
 }
 
-//ASK: полиморфизм. Перегрузка всех функций в одну в наследнике. Избавиться от флагов (надо ли)?
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());

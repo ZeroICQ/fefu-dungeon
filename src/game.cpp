@@ -54,7 +54,7 @@ game::Game::Game()
     std::string level_map = level_cfg.lookup("map");
     std::string level_floor_map = level_cfg.lookup("floor_map");
 
-//    map_.reset(new Map(level_map, level_floor_map);
+    map_.reset(new Map(level_map, level_floor_map);
 }
 
 
