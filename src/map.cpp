@@ -8,12 +8,10 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::make_unique;
 
-game::Map::Map(const string& map_sketch, const string& floor_map_sketch)
+game::Map::Map(const vector<string>& map_sketch, const vector<string>& floor_map_sketch)
 {
     ActorFactory actor_factory;
     FloorActorFactory floor_factory;
-//    auto map_sketch_size = static_cast<int>(map_sketch.size());
-    std::stringstream map_stream();
 
     auto cols = static_cast<int>(map_sketch.front().size());
     auto rows = static_cast<int>(map_sketch.size());

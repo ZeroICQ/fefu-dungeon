@@ -1,60 +1,15 @@
-//#include <unistd.h>
-#include <libconfig.h++>
 #include "game.h"
 #include "event_system.h"
+#include "map_loader.h"
+
 using std::vector;
 
 
 game::Game::Game()
 {
-//    const std::vector<std::string> map = {
-//            "###################################################################",
-//            "#    T                                                            #",
-//            "#                                                               G #",
-//            "#                #    #   #######   #    #                        #",
-//            "#                #   #    #         #   #                         #",
-//            "#                #  #     #         #  #                          #",
-//            "#                # #      #         # #               Z           #",
-//            "#                ##GS     #######   ##                            #",
-//            "#                # #      #         # #                           #",
-//            "#                #  #     #         #  #                          #",
-//            "#                #   #    #         #   #                         #",
-//            "#                #    #   #         #    #                        #",
-//            "#                #     #  #######   #     #                       #",
-//            "#                                                                 #",
-//            "#                                                                 #",
-//            "#   G                                                   T         #",
-//            "#                                                                 #",
-//            "###################################################################"};
-//
-//    const std::vector<std::string> floor_map = {
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   ",
-//            "                                                                   "};
-//    char cwd[1024];
-//    getcwd(cwd, sizeof(cwd));
 
-    libconfig::Config level_cfg;
-    level_cfg.readFile("../levels/test_1");
-    std::string level_map = level_cfg.lookup("map");
-    std::string level_floor_map = level_cfg.lookup("floor_map");
-
-    map_.reset(new Map(level_map, level_floor_map);
+    MapLoader map_loader;
+    map_ = map_loader.load_map(0);
 }
 
 
