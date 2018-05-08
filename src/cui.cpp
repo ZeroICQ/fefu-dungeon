@@ -61,9 +61,7 @@ void cui::Ui::start_game() const
     status_window = newwin(0, 0, 0, 0);
     game_window = newwin(0, 0, 0, 0);
 
-    auto main_char = current_game.get_main_char();
-
-    update_game_frame(game_window, status_window, current_game, main_char, true);
+    update_game_frame(game_window, status_window, current_game, true);
     game::GameControls player_selection = game::GameControls::idle;
 
     int prev_max_x = getmaxx(stdscr);
@@ -107,10 +105,18 @@ void cui::Ui::start_game() const
             is_resized = true;
         }
 
-        current_game.handle_controls(player_selection);
-        update_game_frame(game_window, status_window, current_game, main_char, is_resized);
+        if (!exit_game && current_game.status() == game::GameStatus::level_passed) {
+            print_message(game_window, "LEVEL PASSED!");
+            current_game.load_next_level();
+            is_resized = true;//little hack. trigger resize to redraw game window
+        };
 
-        exit_game = current_game.status() != game::GameStatus::in_progress ? true : exit_game;
+        current_game.handle_controls(player_selection);
+        update_game_frame(game_window, status_window, current_game, is_resized);
+
+        exit_game = current_game.status() == game::GameStatus::won
+                || current_game.status() == game::GameStatus::lost ? true : exit_game;
+
     } while(!exit_game);
 
     if (current_game.status() == game::GameStatus::lost) {
@@ -129,11 +135,10 @@ void cui::Ui::start_game() const
     delwin(status_window);
 }
 
-void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game,
-                                std::shared_ptr<game::Actor> main_char, bool is_resized) const
+void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, const Game& game, bool is_resized) const
 {
-    update_status_window(status_window, game, main_char, is_resized);
-    update_game_window(game_window, game, main_char, is_resized);
+    update_status_window(status_window, game, is_resized);
+    update_game_window(game_window, game, is_resized);
 
     if (is_resized) {
         wclear(stdscr);
@@ -144,10 +149,12 @@ void cui::Ui::update_game_frame(WINDOW* game_window, WINDOW* status_window, cons
     wrefresh(status_window);
 }
 
-void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,
-                                 std::shared_ptr<game::Actor> main_char, bool is_resized) const
+void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,bool is_resized) const
 {
+    auto main_char = game.get_main_char();
+
     if (is_resized) {
+        mvwin(game_window, 0, 0);//reset
         wresize(game_window,
                 std::min(game.get_map_height(), LINES),
                 std::min(game.get_map_width(), COLS - STATUS_MENU_WIDTH));
@@ -197,10 +204,13 @@ void cui::Ui::update_game_window(WINDOW* game_window, const game::Game& game,
 
 void
 
-cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, std::shared_ptr<game::Actor> main_char,
-                              bool is_resized) const
+cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, bool is_resized) const
 {
+    auto main_char = game.get_main_char();
+
     if (is_resized) {
+        mvwin(status_window, 0, 0);//reset
+
         wresize(status_window, LINES, STATUS_MENU_WIDTH);
         mvwin(status_window, 0, COLS - STATUS_MENU_WIDTH);
         wclear(status_window);

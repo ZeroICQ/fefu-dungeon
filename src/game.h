@@ -3,6 +3,7 @@
 #include <memory>
 #include "map.h"
 #include "statuses.h"
+#include "map_loader.h"
 
 namespace game {
 
@@ -22,11 +23,19 @@ public:
     GameStatus status() { return status_; }
     void status(GameStatus n_status);
 
-    std::shared_ptr<Actor> get_main_char();
+    std::shared_ptr<Actor> get_main_char() const;
+
+    void reach_target() { is_target_reached_ = true; }
+
+    void load_next_level();
 
 private:
     std::shared_ptr<Map> map_;
     GameStatus status_ = GameStatus::in_progress;
+
+    int level_number_;
+    game::MapLoader map_loader_;
+    bool is_target_reached_ = false;
 };
 
 }//namespace game

@@ -5,13 +5,17 @@
 using std::vector;
 
 
-game::Game::Game()
+game::Game::Game() : level_number_(0)
 {
-
-    MapLoader map_loader;
-    map_ = map_loader.load_map(0);
+    map_ = map_loader_.load_map(0);
 }
 
+void game::Game::load_next_level()
+{
+    map_ = map_loader_.load_map(++level_number_);
+    status(GameStatus::in_progress);
+    is_target_reached_ = false;
+}
 
 void game::Game::handle_controls(game::GameControls control)
 {
@@ -25,6 +29,10 @@ void game::Game::handle_controls(game::GameControls control)
 
     EventManager::instance().trigger_all(*this, map_);
 
+    if (is_target_reached_) {
+        status(GameStatus::won);
+    }
+
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
         auto curr_actor = map_iterator->actor();
 
@@ -37,16 +45,17 @@ void game::Game::handle_controls(game::GameControls control)
         }
     }
 
+    if (status() == GameStatus::won && level_number_ + 1  < map_loader_.size()) {
+        status(GameStatus::level_passed);
+    }
 }
 
-std::shared_ptr<game::Actor> game::Game::get_main_char()
+std::shared_ptr<game::Actor> game::Game::get_main_char() const
 {
     return map_->get_main_char();
 }
 
 void game::Game::status(game::GameStatus n_status)
 {
-    if (status_ != GameStatus::won) {
         status_ = n_status;
-    }
 }

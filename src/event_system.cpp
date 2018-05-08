@@ -13,8 +13,8 @@ game::EventManager::EventManager()
     damage_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     target_reached_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
 
-    event_pools_.push_back(move_event_pool_);
     event_pools_.push_back(damage_event_pool_);
+    event_pools_.push_back(move_event_pool_);
     event_pools_.push_back(target_reached_event_pool_);
 }
 
@@ -56,5 +56,5 @@ void game::DamageEvent::trigger(Game& game, std::shared_ptr<game::Map> map) {
 
 void game::TargetReachedEvent::trigger(Game& game, std::shared_ptr<game::Map> map)
 {
-    game.status(GameStatus::won);
+    game.reach_target();
 }

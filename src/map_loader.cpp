@@ -5,7 +5,7 @@
 std::shared_ptr<game::Map> game::MapLoader::load_map(int level) const
 {
     libconfig::Config level_cfg;
-    level_cfg.readFile((level_dir + level_filename[level]).c_str());
+    level_cfg.readFile((level_dir + level_filenames[level]).c_str());
 
     std::istringstream map_string(level_cfg.lookup("map"));
     std::istringstream floor_string (level_cfg.lookup("floor_map"));

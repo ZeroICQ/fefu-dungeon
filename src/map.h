@@ -38,7 +38,7 @@ public:
     void move_actor(int row_from, int col_from, int row_to, int col_to, std::shared_ptr<Actor> replace_actor = nullptr);
     void remove_actor(int row, int col, std::shared_ptr<Actor> replace_actor = nullptr);
 
-    std::shared_ptr<game::Actor> get_main_char() { return main_char_; };
+    std::shared_ptr<game::Actor> get_main_char() const { return main_char_; };
     MapSearchResult find_player_near(int row, int col) const;
     MapSearchResult find_transparent_near(int row, int col) const;
 private:
