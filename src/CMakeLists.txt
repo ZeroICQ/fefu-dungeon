@@ -29,4 +29,4 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${CURSES_LIBRARIES} libconfig+
 
 #levels
 configure_file(levels/test_1        ${CMAKE_BINARY_DIR}/levels/test_1   COPYONLY)
-configure_file(levels/test_big ${CMAKE_BINARY_DIR}/levels/test_big COPYONLY)
+configure_file(levels/test_big      ${CMAKE_BINARY_DIR}/levels/test_big COPYONLY)
