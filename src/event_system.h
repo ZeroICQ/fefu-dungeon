@@ -22,12 +22,14 @@ public:
     void add_move(std::shared_ptr<Actor> actor, int row_to, int col_to);
     void add_damage(std::shared_ptr<Actor> from, std::shared_ptr<Actor> to, int damage);
     void add_target_reached();
+    void add_heal(std::shared_ptr<Actor> to, int restore);
 
 private:
     EventManager();
 //    ~EventManager();
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> move_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> damage_event_pool_;
+    std::shared_ptr<std::deque<std::shared_ptr<Event>>> heal_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> target_reached_event_pool_;
 
     std::deque<std::shared_ptr<std::deque<std::shared_ptr<Event>>>> event_pools_;
@@ -76,5 +78,19 @@ class TargetReachedEvent : public Event
 public:
     void trigger(Game& game, std::shared_ptr<Map> map) override;
 };
+
+class HealEvent : public Event
+{
+public:
+    HealEvent(std::shared_ptr<Actor> to, int restore)
+    : actor_to_(to), restore_(restore) {}
+
+    void trigger(Game &game, std::shared_ptr<Map> map) override;
+
+private:
+    std::shared_ptr<Actor> actor_to_;
+    int restore_;
+};
+
 
 } //namespace game

@@ -15,6 +15,7 @@ game::ActorFactory::ActorFactory()
     add_actor<GuardActor>();
     add_actor<TargetActor>();
     add_actor<TeacherActor>();
+    add_actor<HealPotionActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
@@ -131,6 +132,24 @@ game::Directions game::Actor::coord_to_direction(int s_row, int s_col, int d_row
     }
 }
 
+void game::Actor::hit(int damage)
+{
+    if (curr_hp_ - damage >= 0) {
+        curr_hp_ -= damage;
+    } else {
+        curr_hp_ = 0;
+    }
+}
+
+void game::Actor::heal(int restore)
+{
+    if (curr_hp_ + restore <= max_hp_) {
+        curr_hp_ += restore;
+    } else {
+        curr_hp_ = max_hp_;
+    }
+}
+
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
@@ -148,7 +167,7 @@ short game::EnemyActor::color_pair() const
     }
 }
 
-void game::TargetActor::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
+void game::TargetActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_target_reached();
 }
@@ -215,4 +234,10 @@ game::YesOrNo game::RndHelper::rand_yes_no(double yes_percent)
     } else {
         return YesOrNo::NO;
     }
+}
+
+void game::HealPotionActor::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
+{
+    EventManager::instance().add_move(other.get_ptr(), row_, col_);
+    EventManager::instance().add_heal(other.get_ptr(), heal_);
 }

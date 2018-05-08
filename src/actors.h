@@ -25,13 +25,14 @@ private:
 
 //fd circular dependency
 class Map;
+
 class MapCell;
 class MainCharActor;
 class EmptyActor;
 class EnemyActor;
 class ActiveActor;
 
-class Actor: public std::enable_shared_from_this<Actor>
+class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
     explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
@@ -60,7 +61,6 @@ public:
     //flags
     virtual bool is_transparent() const { return false; }
     virtual bool is_playable() const { return false; }
-    virtual bool is_enemy() const { return false; }
     virtual bool is_dead() const { return curr_hp_<= 0; }
 
     //getters and setters
@@ -68,7 +68,9 @@ public:
     void max_hp(int max_hp) { max_hp_ = max_hp; }
 
     int curr_hp() const { return curr_hp_; }
-    void curr_hp(int curr_hp) { curr_hp_ = curr_hp; }
+
+    void hit(int damage);
+    void heal(int restore);
 
     int attack_damage() { return attack_damage_; }
 
@@ -162,7 +164,6 @@ public:
 
     //flags
     bool is_playable() const override { return true; }
-    bool is_enemy() const override { return false; }
 };
 
 
@@ -170,13 +171,11 @@ class EnemyActor : public ActiveActor
 {
 public:
     explicit EnemyActor(int row = 0, int col = 0, char icon = 'E', int hit_points = 0,
-            int attack_damage = 100)
+                        int attack_damage = 100)
             : ActiveActor(row, col, icon, hit_points, attack_damage) {}
 
-    void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
-
-    bool is_enemy() const override { return true; }
 
     short color_pair() const override;
 };
@@ -189,6 +188,7 @@ public:
             : EnemyActor(row, col, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 //    void move(GameControls control, Map& map) override;
 
 //    void collide(Actor& other, Map& map) override { return other.collide(*this, map); }
@@ -200,10 +200,39 @@ public:
     explicit TeacherActor(int row = 0, int col = 0, char icon = 'T', int hit_points = 1000, int attack_damage = 25)
              : EnemyActor(row, col, icon, hit_points, attack_damage), direction_{RndHelper::rand_direction()} {}
 
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
 
 private:
     Directions direction_;
+};
+
+class PickupActor : public Actor
+{
+public:
+//    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
+//                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
+    explicit PickupActor(int row = 0, int col = 0, char icon = 'P', int max_hp = 100,
+                         int attack_damage = 0, short color_pair = Colors::DEFAULT)
+            : Actor(row, col, icon, max_hp, attack_damage, color_pair) {};
+
+    void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+
+    bool is_transparent() const override { return true; }
+};
+
+class HealPotionActor : public PickupActor
+{
+public:
+    explicit HealPotionActor(int row = 0, int col = 0, char icon = 'H', int max_hp = 100,
+                             int attack_damage = 0, short color_pair = Colors::WHITE_RED, int heal = 100)
+            : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, heal_{heal} {}
+
+    void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(MainCharActor &other, const std::shared_ptr<Map> map) override;
+
+protected:
+    int heal_;
 };
 
 
