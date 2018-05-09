@@ -231,6 +231,10 @@ cui::Ui::update_status_window(WINDOW *status_window, const game::Game &game, boo
     print_param_status(status_window, 4, 1, "MP",
                        std::to_string(main_char->curr_mana())+"/"+ std::to_string(main_char->max_mana()));
     print_progressbar(status_window, 5 , 1, main_char->curr_mana(), main_char->max_mana());
+    //Dont tell anyone about this cast
+    //todo: remove dirty cast
+    print_param_status(status_window, 6, 1, dynamic_cast<game::MainCharActor*>(main_char.get())->weapon()->name(),
+                       std::to_string(dynamic_cast<game::MainCharActor*>(main_char.get())->weapon()->mana_cost()));
 
 }
 
