@@ -1,4 +1,6 @@
 #include <cmath>
+#include <chrono>
+#include <thread>
 #include "cui.h"
 #include "menu.h"
 #include "game.h"
@@ -69,10 +71,15 @@ void cui::Ui::start_game() const
     bool is_resized;
 
     bool exit_game = false;
+    std::chrono::duration<double, std::ratio<1, 30>> frame_60{1};
+
     do {
+        auto frame_start = std::chrono::steady_clock::now();
         is_resized = false;
 
-        switch (getch()) {
+        auto key = getch();
+        flushinp();
+        switch (key) {
             case 'q':
                 exit_game = true;
                 break;
@@ -123,6 +130,16 @@ void cui::Ui::start_game() const
         exit_game = current_game.status() == game::GameStatus::won
                 || current_game.status() == game::GameStatus::lost ? true : exit_game;
 
+
+        auto frame_end = std::chrono::steady_clock::now();
+        auto delay = frame_60 - (frame_end - frame_start);
+//
+//        auto kek2 = std::chrono::duration_cast<std::chrono::milliseconds>(frame_60);
+//        auto kek1 = std::chrono::duration_cast<std::chrono::milliseconds>(frame_end - frame_start);
+//        auto kek = std::chrono::duration_cast<std::chrono::microseconds>(delay);
+
+//        std::this_thread::sleep_for(std::chrono::seconds{1});
+        std::this_thread::sleep_for(delay);
     } while(!exit_game);
 
     if (current_game.status() == game::GameStatus::lost) {
