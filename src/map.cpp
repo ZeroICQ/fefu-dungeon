@@ -64,7 +64,7 @@ void game::Map::move_actor(int row_from, int col_from, int row_to, int col_to, s
     map_cells_[row_from][col_from]->actor()->set_pos(row_from, col_from);
 }
 
-void game::Map::remove_actor(int row, int col, shared_ptr<game::Actor> replace_actor)
+void game::Map::replace_actor(int row, int col, shared_ptr<game::Actor> replace_actor)
 {
     if (!replace_actor) {
         replace_actor = std::make_shared<EmptyActor>(row, col);

@@ -92,6 +92,9 @@ void cui::Ui::start_game() const
             case KEY_RIGHT:
                 player_selection = game::GameControls::move_right;
                 break;
+            case ' ':
+                player_selection = game::GameControls::shoot;
+                break;
             default:
                 player_selection = game::GameControls::idle;
                 break;

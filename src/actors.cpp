@@ -16,6 +16,7 @@ game::ActorFactory::ActorFactory()
     add_actor<TargetActor>();
     add_actor<TeacherActor>();
     add_actor<HealPotionActor>();
+    add_actor<FireballActor>();
 }
 
 game::FloorActorFactory::FloorActorFactory()
@@ -29,22 +30,29 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
     auto desired_row = row();
     auto desired_col = col();
 
+    if (controls == GameControls::shoot) {
+        shoot();
+        return;
+    }
+
     switch (controls) {
         case GameControls::move_up:
-            desired_row -= 1;
+            direction(Directions::UP);
             break;
         case GameControls::move_right:
-            desired_col += 1;
+            direction(Directions::RIGHT);
             break;
         case GameControls::move_down:
-            desired_row += 1;
+            direction(Directions::DOWN);
                 break;
         case GameControls::move_left:
-            desired_col -= 1;
+            direction(Directions::LEFT);
             break;
         default:
             break;
     }
+
+    direction_to_coord(direction(), desired_row, desired_col);
 
     if (!map->is_inbound(desired_row, desired_col)) {
         return;
@@ -101,7 +109,7 @@ void game::Actor::collide(game::EnemyActor &other, const shared_ptr<game::Map> m
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
-void game::Actor::direction_to_coord(game::Directions direction, int &row, int &col) const
+void game::Actor::direction_to_coord(game::Directions direction, int &row, int &col)
 {
     switch (direction) {
         case Directions::UP:
@@ -119,7 +127,7 @@ void game::Actor::direction_to_coord(game::Directions direction, int &row, int &
     }
 }
 
-game::Directions game::Actor::coord_to_direction(int s_row, int s_col, int d_row, int d_col) const
+game::Directions game::Actor::coord_to_direction(int s_row, int s_col, int d_row, int d_col)
 {
     if (d_col - s_col == -1) {
         return Directions::LEFT;
@@ -148,6 +156,11 @@ void game::Actor::heal(int restore)
     } else {
         curr_hp_ = max_hp_;
     }
+}
+
+void game::Actor::collide(game::ProjectileActor &other, const shared_ptr<game::Map> map)
+{
+    this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
@@ -182,15 +195,13 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
     }
 
     if (RndHelper::rand_yes_no(0.1) == YesOrNo::YES) {
-        direction_ = RndHelper::rand_direction();
+        direction( RndHelper::rand_direction());
     }
 
     int desired_row = row();
     int desired_col = col();
 
-
-
-    direction_to_coord(direction_, desired_row, desired_col);
+    direction_to_coord(direction(), desired_row, desired_col);
 
     if (!map->is_inbound(desired_row, desired_col)) {
         return;
@@ -200,7 +211,7 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
         MapSearchResult search_result = map->find_transparent_near(row(), col());
 
         if (search_result.is_found) {
-            direction_ = coord_to_direction(row(), col(), search_result.row, search_result. col);
+            direction(coord_to_direction(row(), col(), search_result.row, search_result. col));
             map->get_cell(search_result.row, search_result.col)->actor()->collide(*this, map);
         }
     }
@@ -240,4 +251,35 @@ void game::HealPotionActor::collide(game::MainCharActor &other, const shared_ptr
 {
     EventManager::instance().add_move(other.get_ptr(), row_, col_);
     EventManager::instance().add_heal(other.get_ptr(), heal_);
+}
+
+void game::ActiveActor::shoot()
+{
+    weapon()->shoot(row(), col(), direction());
+}
+
+game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  char icon, int hit_points,
+                               int attack_damage, short color_pair)
+        :  Actor(row, col, icon, hit_points, attack_damage, color_pair), direction_(direction)
+{
+    weapon_ = std::make_shared<SingleShot>();
+}
+
+void game::ProjectileActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
+{
+    int desired_row = row();
+    int desired_col = col();
+
+    direction_to_coord(direction(), desired_row, desired_col);
+
+    if (!map->is_inbound(desired_row, desired_col)) {
+        return;
+    }
+
+    map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
+}
+
+void game::Wall::collide(game::ProjectileActor& other, const shared_ptr<game::Map> map)
+{
+    other.kill();
 }

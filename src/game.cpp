@@ -19,6 +19,7 @@ void game::Game::load_next_level()
 
 void game::Game::handle_controls(game::GameControls control)
 {
+    //stub for not realtime
     if (control == game::GameControls::idle) {
         return;
     }
@@ -41,7 +42,7 @@ void game::Game::handle_controls(game::GameControls control)
             if (curr_actor->is_playable()) {
                 status(GameStatus::lost);
             }
-            map_->remove_actor(curr_actor->row(), curr_actor->col());
+            map_->replace_actor(curr_actor->row(), curr_actor->col());
         }
     }
 

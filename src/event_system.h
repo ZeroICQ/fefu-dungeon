@@ -19,6 +19,7 @@ public:
     static EventManager& instance();
     void trigger_all(Game& game, std::shared_ptr<Map> map);
 
+    void add_projectile(std::shared_ptr<ProjectileActor> projectile);
     void add_move(std::shared_ptr<Actor> actor, int row_to, int col_to);
     void add_damage(std::shared_ptr<Actor> from, std::shared_ptr<Actor> to, int damage);
     void add_target_reached();
@@ -27,6 +28,7 @@ public:
 private:
     EventManager();
 //    ~EventManager();
+    std::shared_ptr<std::deque<std::shared_ptr<Event>>> spawn_projectile_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> move_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> damage_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> heal_event_pool_;
@@ -90,6 +92,20 @@ public:
 private:
     std::shared_ptr<Actor> actor_to_;
     int restore_;
+};
+
+class SpawnProjectileEvent : public Event
+{
+public:
+    SpawnProjectileEvent(std::shared_ptr<ProjectileActor> projectile, int row, int col)
+            : projectile_(projectile), row_(row), col_(col) {}
+
+    void trigger(Game &game, std::shared_ptr<Map> map) override;
+
+private:
+    std::shared_ptr<ProjectileActor> projectile_;
+    int row_;
+    int col_;
 };
 
 

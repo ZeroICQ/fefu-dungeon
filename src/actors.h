@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ncurses.h>
 #include <string>
 #include <functional>
 #include <map>
@@ -7,6 +8,7 @@
 #include "statuses.h"
 #include "map.h"
 #include "colors.h"
+#include "weapons.h"
 
 namespace game {
 
@@ -31,6 +33,8 @@ class MainCharActor;
 class EmptyActor;
 class EnemyActor;
 class ActiveActor;
+class Weapon;
+class ProjectileActor;
 
 class Actor : public std::enable_shared_from_this<Actor>
 {
@@ -39,6 +43,8 @@ public:
                    int attack_damage = 0, short color_pair = Colors::DEFAULT)
             : row_(row), col_(col), map_icon_(icon), max_hp_(max_hp), curr_hp_(max_hp),
               attack_damage_{attack_damage}, color_pair_(color_pair) {}
+    //ASK: ???
+    virtual ~Actor() = default;
 
     std::shared_ptr<Actor> get_ptr();
 
@@ -57,6 +63,7 @@ public:
     virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map) {}
     virtual void collide(MainCharActor& other, const std::shared_ptr<Map> map);
     virtual void collide(EnemyActor& other, const std::shared_ptr<Map> map);
+    virtual void collide(ProjectileActor& other, const std::shared_ptr<Map> map);
 
     //flags
     virtual bool is_transparent() const { return false; }
@@ -70,15 +77,18 @@ public:
     int curr_hp() const { return curr_hp_; }
 
     void hit(int damage);
+    void kill() { curr_hp_ = 0; }
     void heal(int restore);
 
     int attack_damage() { return attack_damage_; }
 
     virtual short color_pair() const { return color_pair_; }
+    //TODO: find a better place
+    static void direction_to_coord(Directions direction, int& row, int& col) ;
+    static Directions coord_to_direction(int s_row, int s_col, int d_row, int d_col);
 
 protected:
-    void direction_to_coord(Directions direction, int& row, int& col) const ;
-    Directions coord_to_direction(int s_row, int s_col, int d_row, int d_col) const;
+
 
     int row_;
     int col_;
@@ -122,19 +132,23 @@ public:
 class Wall : public Actor
 {
 public:
-    explicit Wall(int row = 0, int col = 0, char icon = '#') : Actor(row, col, icon, 100, 0, Colors::FULL_WHITE) {}
+    explicit Wall(int row = 0, int col = 0, char icon = '#', int max_hp = 100,
+            int attack_damage = 0, short colors_pair = Colors::FULL_WHITE)
+            : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
 
 };
 
 
-class TargetActor : public Actor
+class TargetActor : public Wall
 {
 public:
-    explicit TargetActor(int row = 0, int col = 0, char icon = 'Z', int max_hp = 100, int attack_damage = 0,
-            short colors_pair = Colors::CYAN_BLACK)
-            : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
+    explicit TargetActor(int row = 0, int col = 0, char icon = 'Z', int max_hp = 100,
+            int attack_damage = 0, short colors_pair = Colors::CYAN_BLACK)
+            : Wall(row, col, icon, max_hp, attack_damage, colors_pair) {}
+
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 
@@ -144,18 +158,30 @@ public:
 class ActiveActor : public Actor
 {
 public:
-    explicit ActiveActor(int row = 0, int col = 0, char icon = 'A', int hit_points = 0, int attack_damage = 0)
-            :  Actor(row, col, icon, hit_points, attack_damage) {}
+    explicit ActiveActor(int row = 0, int col = 0, Directions direction = Directions::UP,
+                         char icon = 'A', int hit_points = 0,
+                         int attack_damage = 0, short color_pair = Colors::DEFAULT);
+
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 
+    Directions direction() const { return direction_; }
+    void direction(Directions r_dir) { direction_ = r_dir; }
+
+    std::shared_ptr<Weapon> weapon() const { return weapon_; }
+    void shoot();
+
+private:
+    Directions direction_;
+    std::shared_ptr<Weapon> weapon_;
 };
 
 
 class MainCharActor : public ActiveActor
 {
 public:
-    explicit MainCharActor(int row = 0, int col = 0, char icon ='S', int hit_points = 1000, int attack_damage = 50)
-            : ActiveActor(row, col, icon, hit_points, attack_damage) {}
+    explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::UP,
+            char icon ='S', int hit_points = 1000, int attack_damage = 50, int mana = 500)
+            : ActiveActor(row, col, direction, icon, hit_points, attack_damage), mana_(mana) {}
 
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
@@ -164,15 +190,18 @@ public:
 
     //flags
     bool is_playable() const override { return true; }
+
+private:
+    int mana_;
 };
 
 
 class EnemyActor : public ActiveActor
 {
 public:
-    explicit EnemyActor(int row = 0, int col = 0, char icon = 'E', int hit_points = 0,
-                        int attack_damage = 100)
-            : ActiveActor(row, col, icon, hit_points, attack_damage) {}
+    explicit EnemyActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'E', int hit_points = 0,
+                        int attack_damage = 100, short color_pair = Colors::DEFAULT)
+            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
@@ -184,8 +213,8 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, char icon = 'G', int hit_points = 100, int attack_damage = 20)
-            : EnemyActor(row, col, icon, hit_points, attack_damage) {}
+    explicit GuardActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'G', int hit_points = 100, int attack_damage = 20)
+            : EnemyActor(row, col, direction, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
@@ -197,24 +226,23 @@ public:
 class TeacherActor : public EnemyActor
 {
 public:
-    explicit TeacherActor(int row = 0, int col = 0, char icon = 'T', int hit_points = 1000, int attack_damage = 25)
-             : EnemyActor(row, col, icon, hit_points, attack_damage), direction_{RndHelper::rand_direction()} {}
+    explicit TeacherActor(int row = 0, int col = 0, Directions direction = RndHelper::rand_direction(),
+            char icon = 'T', int hit_points = 1000, int attack_damage = 25, short color_pair = Colors::DEFAULT)
+             : EnemyActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
-
-private:
-    Directions direction_;
 };
 
-class PickupActor : public Actor
+//TODO: should be floor actor
+class PickupActor : public Wall
 {
 public:
 //    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
 //                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
     explicit PickupActor(int row = 0, int col = 0, char icon = 'P', int max_hp = 100,
                          int attack_damage = 0, short color_pair = Colors::DEFAULT)
-            : Actor(row, col, icon, max_hp, attack_damage, color_pair) {};
+            : Wall(row, col, icon, max_hp, attack_damage, color_pair) {};
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 
@@ -235,6 +263,24 @@ protected:
     int heal_;
 };
 
+
+class ProjectileActor : public ActiveActor
+{
+public:
+    explicit ProjectileActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'p', int hit_points = 1, int attack_damage = 100,
+                             short color_pair = Colors::DEFAULT)
+            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+
+    void move(GameControls controls, const std::shared_ptr<Map> map) override;
+};
+
+class FireballActor : public ProjectileActor
+{
+public:
+    explicit FireballActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = '*', int hit_points = 1,
+                           int attack_damage = 100, short color_pair = Colors::RED_BLACK)
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+};
 
 template <class BaseT>
 class BaseFactory
