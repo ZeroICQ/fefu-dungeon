@@ -312,7 +312,7 @@ game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  ch
                                int attack_damage, short color_pair, int max_mana)
         :  Actor(row, col, icon, hit_points, attack_damage, color_pair, max_mana), direction_(direction)
 {
-    weapon_ = std::make_shared<Fireball>();
+    weapon_ = std::make_shared<StoneWeapon>();
 }
 
 void game::ActiveActor::collide(game::ProjectileActor& other, const shared_ptr<game::Map> map)

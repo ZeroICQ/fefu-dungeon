@@ -22,13 +22,21 @@ private:
 };
 
 
-class Fireball : public Weapon
+class FireballWeapon : public Weapon
 {
 public:
-    explicit Fireball(int mana_cost = 100, std::string name = "Fireball") : Weapon(mana_cost, name) {}
+    explicit FireballWeapon(int mana_cost = 100, std::string name = "FireballWeapon") : Weapon(mana_cost, name) {}
 
     void shoot(int row, int col, Directions direction) override;
 
+};
+
+class StoneWeapon : public Weapon
+{
+public:
+    explicit StoneWeapon(int mana_cost = 150, std::string name = "Stone") : Weapon(mana_cost, name) {}
+
+    void shoot(int row, int col, Directions direction) override;
 };
 
 }//namespace game

@@ -156,7 +156,7 @@ class TargetActor : public Wall
 {
 public:
     explicit TargetActor(int row = 0, int col = 0, char icon = 'Z', int max_hp = 100,
-            int attack_damage = 0, short colors_pair = Colors::CYAN_BLACK)
+            int attack_damage = 0, short colors_pair = Colors::WHITE_CYAN)
             : Wall(row, col, icon, max_hp, attack_damage, colors_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
@@ -310,6 +310,14 @@ class FireballActor : public ProjectileActor
 public:
     explicit FireballActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = '*', int hit_points = 1,
                            int attack_damage = 100, short color_pair = Colors::RED_BLACK)
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+};
+
+class StoneActor : public ProjectileActor
+{
+public:
+    explicit StoneActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'o', int hit_points = 1,
+                           int attack_damage = 500, short color_pair = Colors::CYAN_BLACK)
             : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 };
 

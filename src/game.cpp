@@ -47,16 +47,14 @@ void game::Game::handle_controls(game::GameControls control)
         auto curr_actor = map_iterator->actor();
 
         if (curr_actor->is_dead()) {
-
-            if (curr_actor->is_playable()) {
-                status(GameStatus::lost);
-            }
             map_->replace_actor(curr_actor->row(), curr_actor->col());
         }
         curr_actor->is_made_turn(false);
     }
 
-
+    if (get_main_char()->is_dead()) {
+        status(GameStatus::lost);
+    }
 
     if (status() == GameStatus::won && level_number_ + 1  < map_loader_.size()) {
         status(GameStatus::level_passed);
