@@ -59,8 +59,8 @@ public:
 
     virtual void move(GameControls controls, const std::shared_ptr<Map> map) {}
 
-    virtual void collide(Actor& other, const std::shared_ptr<Map> map) = 0;
-    virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map) {}
+    virtual void collide(Actor& other, const std::shared_ptr<Map> map) {};
+    virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map);
     virtual void collide(MainCharActor& other, const std::shared_ptr<Map> map);
     virtual void collide(EnemyActor& other, const std::shared_ptr<Map> map);
     virtual void collide(ProjectileActor& other, const std::shared_ptr<Map> map);
@@ -137,6 +137,7 @@ public:
             : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override { }
     void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
 
 };
@@ -163,6 +164,7 @@ public:
                          int attack_damage = 0, short color_pair = Colors::DEFAULT);
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
 
     Directions direction() const { return direction_; }
     void direction(Directions r_dir) { direction_ = r_dir; }
@@ -204,6 +206,7 @@ public:
             : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(EnemyActor& other, const std::shared_ptr<Map> map) override {};
     void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 
     short color_pair() const override;
@@ -256,8 +259,8 @@ public:
                              int attack_damage = 0, short color_pair = Colors::WHITE_RED, int heal = 100)
             : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, heal_{heal} {}
 
-    void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
-    void collide(MainCharActor &other, const std::shared_ptr<Map> map) override;
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
 
 protected:
     int heal_;
@@ -271,7 +274,10 @@ public:
                              short color_pair = Colors::DEFAULT)
             : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 
+    void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
+
+    bool is_transparent() const override { return is_dead(); }
 };
 
 class FireballActor : public ProjectileActor

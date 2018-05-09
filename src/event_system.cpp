@@ -14,11 +14,11 @@ game::EventManager::EventManager()
     heal_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
     damage_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     target_reached_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
-
+    //dont touch
     event_pools_.push_back(spawn_projectile_event_pool_);
     event_pools_.push_back(damage_event_pool_);
-    event_pools_.push_back(heal_event_pool_);
     event_pools_.push_back(move_event_pool_);
+    event_pools_.push_back(heal_event_pool_);
     event_pools_.push_back(target_reached_event_pool_);
 }
 
@@ -80,9 +80,5 @@ void game::HealEvent::trigger(game::Game& game, std::shared_ptr<game::Map> map)
 
 void game::SpawnProjectileEvent::trigger(game::Game& game, std::shared_ptr<game::Map> map)
 {
-    map->get_cell(projectile_->row(), projectile_->col())->actor()->collide(*projectile_, map);
-
-    if (!projectile_->is_dead()) {
-        map->replace_actor(projectile_->row(), projectile_->col(), projectile_);
-    }
+    map->replace_actor(projectile_->row(), projectile_->col(), projectile_);
 }

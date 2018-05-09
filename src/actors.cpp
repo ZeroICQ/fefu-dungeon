@@ -77,19 +77,26 @@ void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::
 
     if (player_search.is_found) {
         map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
+        direction(coord_to_direction(row(), col(), player_search.row, player_search.col));
         return;
     }
 
-    Directions rnd_direction = RndHelper::rand_direction();
+    direction(RndHelper::rand_direction());
 
     int desired_row = row();
     int desired_col = col();
 
-    direction_to_coord(rnd_direction, desired_row, desired_col);
+    direction_to_coord(direction(), desired_row, desired_col);
 
     if (!map->is_inbound(desired_row, desired_col)) {
         return;
     }
+
+    //20% chance shooting
+    if (RndHelper::rand_yes_no(0.2) == YesOrNo::YES) {
+        shoot();
+    }
+
 
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
@@ -163,6 +170,11 @@ void game::Actor::collide(game::ProjectileActor &other, const shared_ptr<game::M
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
+void game::Actor::collide(game::ActiveActor &other, const shared_ptr<game::Map> map)
+{
+    this->collide(*static_cast<Actor*>(&other), map);
+}
+
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
@@ -195,6 +207,11 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
     }
 
     if (RndHelper::rand_yes_no(0.1) == YesOrNo::YES) {
+        //90% chance shooting
+        if (RndHelper::rand_yes_no(0.90) == YesOrNo::YES) {
+            shoot();
+        }
+
         direction( RndHelper::rand_direction());
     }
 
@@ -263,6 +280,17 @@ game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  ch
         :  Actor(row, col, icon, hit_points, attack_damage, color_pair), direction_(direction)
 {
     weapon_ = std::make_shared<SingleShot>();
+}
+
+void game::ActiveActor::collide(game::ProjectileActor& other, const shared_ptr<game::Map> map)
+{
+//    EventManager::instance().add_move(get_ptr(), other.row(), other.col());
+    if (other.is_dead()) {
+//        return;
+    }
+
+    other.kill();
+    EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
 void game::ProjectileActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
