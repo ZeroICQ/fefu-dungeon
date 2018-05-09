@@ -87,9 +87,9 @@ public:
     static void direction_to_coord(Directions direction, int& row, int& col) ;
     static Directions coord_to_direction(int s_row, int s_col, int d_row, int d_col);
 
+    bool is_made_turn() const { return is_made_turn_; }
+    void is_made_turn(bool val)  { is_made_turn_ = val; }
 protected:
-
-
     int row_;
     int col_;
     char map_icon_;
@@ -97,6 +97,7 @@ protected:
     int curr_hp_;
     int attack_damage_;
     short color_pair_;
+    bool is_made_turn_ = false;
 };
 
 
@@ -275,6 +276,8 @@ public:
             : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
+    void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
     void move(GameControls controls, const std::shared_ptr<Map> map) override;
 
     bool is_transparent() const override { return is_dead(); }

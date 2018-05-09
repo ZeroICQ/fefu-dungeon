@@ -18,6 +18,10 @@ public:
     //Meyer's singleton
     static EventManager& instance();
     void trigger_all(Game& game, std::shared_ptr<Map> map);
+    void move_projectiles(Game& game, std::shared_ptr<Map> map, GameControls control);
+    void spawn_projectiles(Game& game, std::shared_ptr<Map> map);
+
+    void manage_projectile(std::shared_ptr<ProjectileActor> projectile);
 
     void add_projectile(std::shared_ptr<ProjectileActor> projectile);
     void add_move(std::shared_ptr<Actor> actor, int row_to, int col_to);
@@ -28,6 +32,8 @@ public:
 private:
     EventManager();
 //    ~EventManager();
+    std::deque<std::shared_ptr<ProjectileActor>> projectiles_;
+
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> spawn_projectile_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> move_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> damage_event_pool_;

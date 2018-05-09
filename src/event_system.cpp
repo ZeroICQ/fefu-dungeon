@@ -10,15 +10,16 @@ game::EventManager& game::EventManager::instance()
 game::EventManager::EventManager()
 {
     spawn_projectile_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
+
+
     move_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     heal_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
     damage_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     target_reached_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
-    //dont touch
-    event_pools_.push_back(spawn_projectile_event_pool_);
+
+    event_pools_.push_back(heal_event_pool_);
     event_pools_.push_back(damage_event_pool_);
     event_pools_.push_back(move_event_pool_);
-    event_pools_.push_back(heal_event_pool_);
     event_pools_.push_back(target_reached_event_pool_);
 }
 
@@ -57,6 +58,36 @@ void game::EventManager::add_projectile(std::shared_ptr<game::ProjectileActor> p
             new SpawnProjectileEvent(projectile, projectile->row(), projectile->col()));
 }
 
+void game::EventManager::move_projectiles(game::Game& game, std::shared_ptr<game::Map> map, GameControls control)
+{
+    for (auto i = projectiles_.begin(); i != projectiles_.end();) {
+        i->get()->move(control, map);
+        i->get()->is_made_turn(true);
+        trigger_all(game, map);
+
+        //don't forget to remove from map
+        if (i->get()->is_dead()) {
+            i = projectiles_.erase(i);
+        } else {
+            i++;
+        }
+    }
+}
+
+void game::EventManager::spawn_projectiles(Game& game, std::shared_ptr<Map> map)
+{
+    while (!spawn_projectile_event_pool_->empty()) {
+        spawn_projectile_event_pool_->front()->trigger(game, map);
+        spawn_projectile_event_pool_->pop_front();
+        trigger_all(game, map);
+    }
+}
+
+void game::EventManager::manage_projectile(std::shared_ptr<game::ProjectileActor> projectile)
+{
+    projectiles_.push_back(projectile);
+}
+
 void game::MoveEvent::trigger(Game& game, std::shared_ptr<Map> map)
 {
     if (map->is_inbound(row_to_, col_to_) && map->get_cell(row_to_, col_to_)->actor()->is_transparent()) {
@@ -80,5 +111,11 @@ void game::HealEvent::trigger(game::Game& game, std::shared_ptr<game::Map> map)
 
 void game::SpawnProjectileEvent::trigger(game::Game& game, std::shared_ptr<game::Map> map)
 {
-    map->replace_actor(projectile_->row(), projectile_->col(), projectile_);
+    map->get_cell(projectile_->row(), projectile_->col())->actor()->collide(*projectile_, map);
+
+    EventManager::instance().trigger_all(game, map);
+    if (!projectile_->is_dead()) {
+        map->replace_actor(projectile_->row(), projectile_->col(), projectile_);
+        EventManager::instance().manage_projectile(projectile_);
+    }
 }

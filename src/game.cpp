@@ -24,8 +24,15 @@ void game::Game::handle_controls(game::GameControls control)
         return;
     }
 
+    EventManager::instance().move_projectiles(*this, map_, control);
+
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
+        if (map_iterator->actor()->is_made_turn()) {
+            continue;
+        }
+
         map_iterator->actor()->move(control, map_);
+        map_iterator->actor()->is_made_turn(true);
     }
 
     EventManager::instance().trigger_all(*this, map_);
@@ -33,6 +40,8 @@ void game::Game::handle_controls(game::GameControls control)
     if (is_target_reached_) {
         status(GameStatus::won);
     }
+
+    EventManager::instance().spawn_projectiles(*this, map_);
 
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
         auto curr_actor = map_iterator->actor();
@@ -44,7 +53,10 @@ void game::Game::handle_controls(game::GameControls control)
             }
             map_->replace_actor(curr_actor->row(), curr_actor->col());
         }
+        curr_actor->is_made_turn(false);
     }
+
+
 
     if (status() == GameStatus::won && level_number_ + 1  < map_loader_.size()) {
         status(GameStatus::level_passed);

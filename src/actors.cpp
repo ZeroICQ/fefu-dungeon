@@ -93,8 +93,10 @@ void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::
     }
 
     //20% chance shooting
+    //dont shoot and go same time
     if (RndHelper::rand_yes_no(0.2) == YesOrNo::YES) {
         shoot();
+        return;
     }
 
 
@@ -205,13 +207,14 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
         map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
         return;
     }
+    
+    //10% chance shooting
+    if (RndHelper::rand_yes_no(0.10) == YesOrNo::YES) {
+        shoot();
+        return;
+    }
 
     if (RndHelper::rand_yes_no(0.1) == YesOrNo::YES) {
-        //90% chance shooting
-        if (RndHelper::rand_yes_no(0.90) == YesOrNo::YES) {
-            shoot();
-        }
-
         direction( RndHelper::rand_direction());
     }
 
@@ -284,12 +287,12 @@ game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  ch
 
 void game::ActiveActor::collide(game::ProjectileActor& other, const shared_ptr<game::Map> map)
 {
-//    EventManager::instance().add_move(get_ptr(), other.row(), other.col());
     if (other.is_dead()) {
-//        return;
+        return;
     }
 
     other.kill();
+
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
@@ -310,4 +313,23 @@ void game::ProjectileActor::move(game::GameControls controls, const shared_ptr<g
 void game::Wall::collide(game::ProjectileActor& other, const shared_ptr<game::Map> map)
 {
     other.kill();
+}
+
+void game::ProjectileActor::collide(game::ActiveActor& other, const shared_ptr<game::Map> map)
+{
+    if (!is_dead()) {
+        other.collide(*this, map);
+    }
+
+    EventManager::instance().add_move(other.get_ptr(), row(), col());
+}
+
+void game::ProjectileActor::collide(game::ProjectileActor &other, const shared_ptr<game::Map> map)
+{
+    if (is_dead()) {
+        EventManager::instance().add_move(other.get_ptr(), row(), col());
+    } else {
+        kill();
+        other.kill();
+    }
 }
