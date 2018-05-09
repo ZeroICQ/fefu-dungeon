@@ -66,6 +66,15 @@ void game::MainCharActor::collide(game::EnemyActor& other, const shared_ptr<game
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
+void game::MainCharActor::shoot()
+{
+    if (curr_mana() - weapon()->mana_cost() >= 0)
+    {
+        decrease_mana(weapon()->mana_cost());
+        ActiveActor::shoot();
+    }
+}
+
 
 void game::EmptyActor::collide(game::ActiveActor& other, const shared_ptr<game::Map> map)
 {
@@ -177,6 +186,15 @@ void game::Actor::collide(game::ActiveActor &other, const shared_ptr<game::Map> 
     this->collide(*static_cast<Actor*>(&other), map);
 }
 
+void game::Actor::decrease_mana(int amount)
+{
+    if (curr_mana_ - amount >= 0) {
+        curr_mana_ -= amount;
+    } else {
+        curr_mana_ = 0;
+    }
+}
+
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
@@ -207,7 +225,7 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
         map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
         return;
     }
-    
+
     //10% chance shooting
     if (RndHelper::rand_yes_no(0.10) == YesOrNo::YES) {
         shoot();
@@ -279,8 +297,8 @@ void game::ActiveActor::shoot()
 }
 
 game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  char icon, int hit_points,
-                               int attack_damage, short color_pair)
-        :  Actor(row, col, icon, hit_points, attack_damage, color_pair), direction_(direction)
+                               int attack_damage, short color_pair, int max_mana)
+        :  Actor(row, col, icon, hit_points, attack_damage, color_pair, max_mana), direction_(direction)
 {
     weapon_ = std::make_shared<SingleShot>();
 }

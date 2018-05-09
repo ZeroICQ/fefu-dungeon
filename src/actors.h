@@ -40,9 +40,10 @@ class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
     explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
-                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
+                   int attack_damage = 0, short color_pair = Colors::DEFAULT,
+                   int max_mana = 0)
             : row_(row), col_(col), map_icon_(icon), max_hp_(max_hp), curr_hp_(max_hp),
-              attack_damage_{attack_damage}, color_pair_(color_pair) {}
+              attack_damage_{attack_damage}, color_pair_(color_pair), max_mana_(max_mana), curr_mana_(max_mana) {}
     //ASK: ???
     virtual ~Actor() = default;
 
@@ -72,9 +73,12 @@ public:
 
     //getters and setters
     int max_hp() const { return max_hp_; }
-    void max_hp(int max_hp) { max_hp_ = max_hp; }
-
     int curr_hp() const { return curr_hp_; }
+
+    int max_mana() const { return max_mana_; }
+    int curr_mana() const { return curr_mana_; }
+
+    void decrease_mana(int amount);
 
     void hit(int damage);
     void kill() { curr_hp_ = 0; }
@@ -98,6 +102,9 @@ protected:
     int attack_damage_;
     short color_pair_;
     bool is_made_turn_ = false;
+    int max_mana_;
+    int curr_mana_;
+
 };
 
 
@@ -162,7 +169,7 @@ class ActiveActor : public Actor
 public:
     explicit ActiveActor(int row = 0, int col = 0, Directions direction = Directions::UP,
                          char icon = 'A', int hit_points = 0,
-                         int attack_damage = 0, short color_pair = Colors::DEFAULT);
+                         int attack_damage = 0, short color_pair = Colors::DEFAULT, int max_mana = 500);
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
@@ -171,9 +178,10 @@ public:
     void direction(Directions r_dir) { direction_ = r_dir; }
 
     std::shared_ptr<Weapon> weapon() const { return weapon_; }
-    void shoot();
 
-private:
+    virtual void shoot();
+
+protected:
     Directions direction_;
     std::shared_ptr<Weapon> weapon_;
 };
@@ -183,19 +191,19 @@ class MainCharActor : public ActiveActor
 {
 public:
     explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::UP,
-            char icon ='S', int hit_points = 1000, int attack_damage = 50, int mana = 500)
-            : ActiveActor(row, col, direction, icon, hit_points, attack_damage), mana_(mana) {}
+                           char icon ='S', int hit_points = 1000, int attack_damage = 50, short color_pair = Colors::DEFAULT,
+                           int max_mana = 500)
+            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair, max_mana) {}
 
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(EnemyActor& other, const std::shared_ptr<Map> map) override;
 
+    void shoot() override;
+
     //flags
     bool is_playable() const override { return true; }
-
-private:
-    int mana_;
 };
 
 
