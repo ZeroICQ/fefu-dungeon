@@ -31,6 +31,12 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
     auto desired_row = row();
     auto desired_col = col();
 
+    if (controls == GameControls::next_weapon)
+    {
+        next_weapon();
+        return;
+    }
+
     if (controls == GameControls::shoot) {
         shoot();
         return;
@@ -74,6 +80,24 @@ void game::MainCharActor::shoot()
         decrease_mana(weapon()->mana_cost());
         ActiveActor::shoot();
     }
+}
+
+void game::MainCharActor::next_weapon()
+{
+    weapon_number_ = static_cast<int>((weapon_number_ + 1) % weapons_.size());
+}
+
+shared_ptr<game::Weapon> game::MainCharActor::weapon() const
+{
+    return weapons_[weapon_number_];
+}
+
+game::MainCharActor::MainCharActor(int row, int col, game::Directions direction, char icon, int hit_points,
+                                   int attack_damage, short color_pair, int max_mana)
+        : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair, max_mana)
+{
+    weapons_.emplace_back(new FireballWeapon);
+    weapons_.emplace_back(new StoneWeapon);
 }
 
 

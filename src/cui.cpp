@@ -95,6 +95,9 @@ void cui::Ui::start_game() const
             case ' ':
                 player_selection = game::GameControls::shoot;
                 break;
+            case 'e':
+                player_selection = game::GameControls::next_weapon;
+                break;
             default:
                 player_selection = game::GameControls::idle;
                 break;

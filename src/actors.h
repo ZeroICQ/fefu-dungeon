@@ -178,7 +178,7 @@ public:
     Directions direction() const { return direction_; }
     void direction(Directions r_dir) { direction_ = r_dir; }
 
-    std::shared_ptr<Weapon> weapon() const { return weapon_; }
+    virtual std::shared_ptr<Weapon> weapon() const { return weapon_; }
 
     virtual void shoot();
 
@@ -193,8 +193,7 @@ class MainCharActor : public ActiveActor
 public:
     explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::UP,
                            char icon ='S', int hit_points = 1000, int attack_damage = 50, short color_pair = Colors::DEFAULT,
-                           int max_mana = 500)
-            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair, max_mana) {}
+                           int max_mana = 500);
 
     void move(GameControls controls, std::shared_ptr<Map> map) override;
 
@@ -205,6 +204,13 @@ public:
 
     //flags
     bool is_playable() const override { return true; }
+
+    std::shared_ptr<Weapon> weapon() const override;
+
+protected:
+    void next_weapon();
+    std::vector<std::shared_ptr<Weapon>> weapons_;
+    int weapon_number_ = 0;
 };
 
 
