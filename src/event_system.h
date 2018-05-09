@@ -28,6 +28,7 @@ public:
     void add_damage(std::shared_ptr<Actor> from, std::shared_ptr<Actor> to, int damage);
     void add_target_reached();
     void add_heal(std::shared_ptr<Actor> to, int restore);
+    void add_mana(std::shared_ptr<Actor> to, int restore);
 
 private:
     EventManager();
@@ -39,6 +40,7 @@ private:
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> damage_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> heal_event_pool_;
     std::shared_ptr<std::deque<std::shared_ptr<Event>>> target_reached_event_pool_;
+    std::shared_ptr<std::deque<std::shared_ptr<Event>>> mana_restore_event_pool_;
 
     std::deque<std::shared_ptr<std::deque<std::shared_ptr<Event>>>> event_pools_;
 };
@@ -95,6 +97,18 @@ public:
 
     void trigger(Game &game, std::shared_ptr<Map> map) override;
 
+private:
+    std::shared_ptr<Actor> actor_to_;
+    int restore_;
+};
+
+class ManaRestoreEvent : public Event
+{
+public:
+    ManaRestoreEvent(std::shared_ptr<Actor> to, int restore)
+    : actor_to_(to), restore_(restore) {}
+
+    void trigger(Game& game, std::shared_ptr<Map> map) override;
 private:
     std::shared_ptr<Actor> actor_to_;
     int restore_;

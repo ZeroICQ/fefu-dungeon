@@ -16,6 +16,7 @@ game::ActorFactory::ActorFactory()
     add_actor<TargetActor>();
     add_actor<TeacherActor>();
     add_actor<HealPotionActor>();
+    add_actor<ManaPotionActor>();
     add_actor<FireballActor>();
 }
 
@@ -195,6 +196,15 @@ void game::Actor::decrease_mana(int amount)
     }
 }
 
+void game::Actor::restore_mana(int amount)
+{
+    if (curr_mana_ + amount <= max_mana_) {
+        curr_mana_ += amount;
+    } else {
+        curr_mana_ = max_mana_;
+    }
+}
+
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
@@ -285,8 +295,10 @@ game::YesOrNo game::RndHelper::rand_yes_no(double yes_percent)
     }
 }
 
-void game::HealPotionActor::collide(game::MainCharActor &other, const shared_ptr<game::Map> map)
+void game::HealPotionActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
+    //"kill" potion so we can stand on its place
+    EventManager::instance().add_damage(other.get_ptr(), get_ptr(), max_hp());
     EventManager::instance().add_move(other.get_ptr(), row_, col_);
     EventManager::instance().add_heal(other.get_ptr(), heal_);
 }
@@ -350,4 +362,11 @@ void game::ProjectileActor::collide(game::ProjectileActor &other, const shared_p
         kill();
         other.kill();
     }
+}
+
+void game::ManaPotionActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
+{
+    EventManager::instance().add_damage(other.get_ptr(), get_ptr(), max_hp());
+    EventManager::instance().add_move(other.get_ptr(), row_, col_);
+    EventManager::instance().add_mana(other.get_ptr(), restore_);
 }

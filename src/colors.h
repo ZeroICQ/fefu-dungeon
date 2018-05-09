@@ -12,6 +12,7 @@ public:
     static const short RED_BLACK = 3;
     static const short CYAN_BLACK = 4;
     static const short WHITE_RED = 5;
+    static const short WHITE_BLUE = 6;
 
     static void initialize();
 private:

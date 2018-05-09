@@ -14,10 +14,12 @@ game::EventManager::EventManager()
 
     move_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     heal_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
+    mana_restore_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
     damage_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     target_reached_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
 
     event_pools_.push_back(heal_event_pool_);
+    event_pools_.push_back(mana_restore_event_pool_);
     event_pools_.push_back(damage_event_pool_);
     event_pools_.push_back(move_event_pool_);
     event_pools_.push_back(target_reached_event_pool_);
@@ -88,9 +90,15 @@ void game::EventManager::manage_projectile(std::shared_ptr<game::ProjectileActor
     projectiles_.push_back(projectile);
 }
 
+void game::EventManager::add_mana(std::shared_ptr<game::Actor> to, int restore)
+{
+    mana_restore_event_pool_->emplace_back(new ManaRestoreEvent(to, restore));
+}
+
 void game::MoveEvent::trigger(Game& game, std::shared_ptr<Map> map)
 {
-    if (map->is_inbound(row_to_, col_to_) && map->get_cell(row_to_, col_to_)->actor()->is_transparent()) {
+    if (map->is_inbound(row_to_, col_to_) &&
+        (map->get_cell(row_to_, col_to_)->actor()->is_transparent() || map->get_cell(row_to_, col_to_)->actor()->is_dead())) {
         map->move_actor(actor_->row(), actor_->col(), row_to_, col_to_);
     }
 }
@@ -118,4 +126,9 @@ void game::SpawnProjectileEvent::trigger(game::Game& game, std::shared_ptr<game:
         map->replace_actor(projectile_->row(), projectile_->col(), projectile_);
         EventManager::instance().manage_projectile(projectile_);
     }
+}
+
+void game::ManaRestoreEvent::trigger(game::Game& game, std::shared_ptr<game::Map> map)
+{
+    actor_to_->restore_mana(restore_);
 }

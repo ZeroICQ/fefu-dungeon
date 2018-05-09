@@ -79,6 +79,7 @@ public:
     int curr_mana() const { return curr_mana_; }
 
     void decrease_mana(int amount);
+    void restore_mana(int amount);
 
     void hit(int damage);
     void kill() { curr_hp_ = 0; }
@@ -252,19 +253,19 @@ class PickupActor : public Wall
 public:
 //    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
 //                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
-    explicit PickupActor(int row = 0, int col = 0, char icon = 'P', int max_hp = 100,
+    explicit PickupActor(int row = 0, int col = 0, char icon = 'P', int max_hp = 1,
                          int attack_damage = 0, short color_pair = Colors::DEFAULT)
             : Wall(row, col, icon, max_hp, attack_damage, color_pair) {};
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
-
-    bool is_transparent() const override { return true; }
+    //should really replace potions to the floor
+//    bool is_transparent() const override { return true; }
 };
 
 class HealPotionActor : public PickupActor
 {
 public:
-    explicit HealPotionActor(int row = 0, int col = 0, char icon = 'H', int max_hp = 100,
+    explicit HealPotionActor(int row = 0, int col = 0, char icon = 'H', int max_hp = 1,
                              int attack_damage = 0, short color_pair = Colors::WHITE_RED, int heal = 100)
             : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, heal_{heal} {}
 
@@ -273,6 +274,19 @@ public:
 
 protected:
     int heal_;
+};
+
+class ManaPotionActor : public PickupActor
+{
+public:
+    ManaPotionActor(int row = 0, int col = 0, char icon = 'M', int max_hp = 1,
+                    int attack_damage = 0, short color_pair = Colors::WHITE_BLUE, int restore = 500)
+            : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, restore_{restore} {}
+
+    void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
+    void collide(MainCharActor& other, const std::shared_ptr<Map> map) override;
+protected:
+    int restore_;
 };
 
 
