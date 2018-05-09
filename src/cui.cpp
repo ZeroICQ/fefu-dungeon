@@ -261,13 +261,22 @@ void cui::Ui::print_progressbar(WINDOW* status_window, int row, int col, int val
 void cui::Ui::print_message(WINDOW* window, std::string message) const
 {
     std::string continue_message = "Press <enter> to continue";
+
     wclear(window);
+
+    mvwin(window, 0, 0);
+    wresize(window, LINES, COLS);
+
     int center_row = getmaxy(window) / 2;
     int center_col = (getmaxx(window) - static_cast<int>(message.length())) / 2;
     mvwaddstr(window, center_row, center_col, message.c_str());
 
     int center_col_cont_message = (getmaxx(window) - static_cast<int>(continue_message.length())) / 2;
     mvwaddstr(window, center_row + 2, center_col_cont_message, continue_message.c_str());
+
+    wclear(stdscr);
+    wrefresh(stdscr);
+
     wrefresh(window);
 
     while (getch() != REAL_KEY_ENTER) {
