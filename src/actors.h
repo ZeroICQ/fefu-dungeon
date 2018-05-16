@@ -297,8 +297,12 @@ public:
 class HealPotionActor : public PickupActor
 {
 public:
-    explicit HealPotionActor(int row = 0, int col = 0, char icon = 'H', int max_hp = 1,
-                             int attack_damage = 0, short color_pair = Colors::WHITE_RED, int heal = 100)
+    explicit HealPotionActor(int row = 0, int col = 0,
+                             char icon         = Cfg::getHp().icon,
+                             int max_hp        = 1,
+                             int attack_damage = 0,
+                             short color_pair  = Cfg::getHp().color_pair,
+                             int heal          = Cfg::getHp().restore)
             : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, heal_{heal} {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
@@ -311,8 +315,12 @@ protected:
 class ManaPotionActor : public PickupActor
 {
 public:
-    ManaPotionActor(int row = 0, int col = 0, char icon = 'M', int max_hp = 1,
-                    int attack_damage = 0, short color_pair = Colors::WHITE_BLUE, int restore = 500)
+    ManaPotionActor(int row = 0, int col = 0,
+                    char icon         = Cfg::getMana().icon,
+                    int max_hp        = 1,
+                    int attack_damage = 0,
+                    short color_pair =Cfg::getMana().color_pair,
+                    int restore = Cfg::getMana().restore)
             : PickupActor{row, col , icon, max_hp, attack_damage, color_pair}, restore_{restore} {}
 
     void collide(Actor &other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }

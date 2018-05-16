@@ -13,3 +13,14 @@ struct ActorSettings
     short color_pair;
     int max_mana;
 };
+
+
+struct PotionSettings
+{
+    PotionSettings(char icon, short color_pair, int restore)
+            : icon(icon), color_pair(color_pair), restore(restore) {}
+
+    char icon;
+    short color_pair;
+    int restore;
+};
