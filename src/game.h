@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 #include "map.h"
 #include "statuses.h"
 #include "map_loader.h"
@@ -12,8 +13,7 @@ class Game
 public:
     explicit Game();
 
-    void handle_controls(GameControls control);
-
+    void handle_controls(GameControls control, const std::chrono::time_point<std::chrono::steady_clock>& curr_tp);
     std::unique_ptr<MapConstIterator> map_const_iterator() const { return map_->const_iterator(); }
     std::unique_ptr<MapIterator> map_iterator() const { return map_->iterator(); }
 

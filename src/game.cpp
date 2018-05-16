@@ -2,8 +2,8 @@
 #include "event_system.h"
 #include "map_loader.h"
 
+using namespace std::chrono;
 using std::vector;
-
 
 game::Game::Game() : level_number_(0)
 {
@@ -17,21 +17,21 @@ void game::Game::load_next_level()
     is_target_reached_ = false;
 }
 
-void game::Game::handle_controls(game::GameControls control)
+void game::Game::handle_controls(game::GameControls control, const time_point<steady_clock>& curr_tp)
 {
     //stub for not realtime
 //    if (control == game::GameControls::idle) {
 //        return;
 //    }
 
-    EventManager::instance().move_projectiles(*this, map_, control);
+    EventManager::instance().move_projectiles(*this, map_, control, curr_tp);
 
     for (auto map_iterator = this->map_iterator(); !map_iterator->is_end(); map_iterator->next()) {
         if (map_iterator->actor()->is_made_turn()) {
             continue;
         }
 
-        map_iterator->actor()->move(control, map_);
+        map_iterator->actor()->move(control, map_, curr_tp);
         map_iterator->actor()->is_made_turn(true);
     }
 

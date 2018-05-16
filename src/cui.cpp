@@ -8,6 +8,7 @@
 #include "colors.h"
 #include "statuses.h"
 
+using namespace std::chrono;
 using game::Game;
 using std::unique_ptr;
 
@@ -71,7 +72,7 @@ void cui::Ui::start_game() const
     bool is_resized;
 
     bool exit_game = false;
-    std::chrono::duration<double, std::ratio<1, 30>> frame_60{1};
+    std::chrono::duration<long, std::ratio<1, 30>> frame_ratio{1};
 
     do {
         auto frame_start = std::chrono::steady_clock::now();
@@ -124,7 +125,7 @@ void cui::Ui::start_game() const
             is_resized = true;//little hack. trigger resize to redraw game window
         };
 
-        current_game.handle_controls(player_selection);
+        current_game.handle_controls(player_selection, frame_start);
         update_game_frame(game_window, status_window, current_game, is_resized);
 
         exit_game = current_game.status() == game::GameStatus::won
@@ -132,14 +133,9 @@ void cui::Ui::start_game() const
 
 
         auto frame_end = std::chrono::steady_clock::now();
-        auto delay = frame_60 - (frame_end - frame_start);
-//
-//        auto kek2 = std::chrono::duration_cast<std::chrono::milliseconds>(frame_60);
-//        auto kek1 = std::chrono::duration_cast<std::chrono::milliseconds>(frame_end - frame_start);
-//        auto kek = std::chrono::duration_cast<std::chrono::microseconds>(delay);
-
-//        std::this_thread::sleep_for(std::chrono::seconds{1});
+        auto delay = frame_ratio - (frame_end - frame_start);
         std::this_thread::sleep_for(delay);
+
     } while(!exit_game);
 
     if (current_game.status() == game::GameStatus::lost) {

@@ -4,6 +4,7 @@
 #include "actors.h"
 #include "event_system.h"
 
+using namespace std::chrono;
 using std::vector;
 using std::shared_ptr;
 
@@ -26,7 +27,8 @@ game::FloorActorFactory::FloorActorFactory()
 }
 
 
-void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map> map)
+void game::MainCharActor::move(GameControls controls, const std::shared_ptr<Map> map,
+                               const time_point<steady_clock>& curr_tp)
 {
     auto desired_row = row();
     auto desired_col = col();
@@ -96,7 +98,7 @@ shared_ptr<game::Weapon> game::MainCharActor::weapon() const
 
 game::MainCharActor::MainCharActor(int row, int col, game::Directions direction, char icon, int hit_points,
                                    int attack_damage, short color_pair, int max_mana)
-        : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair, max_mana)
+        : ActiveActor(row, col, 0, direction, icon, hit_points, attack_damage, color_pair, max_mana)
 {
     weapons_.emplace_back(new FireballWeapon);
     weapons_.emplace_back(new StoneWeapon);
@@ -108,23 +110,34 @@ void game::EmptyActor::collide(game::ActiveActor& other, const shared_ptr<game::
     EventManager::instance().add_move(other.get_ptr(), row_, col_);
 }
 
-void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::Map> map) {
+void game::GuardActor::move(GameControls controls, const std::shared_ptr<Map> map, const time_point<steady_clock>& curr_tp) {
     MapSearchResult player_search = map->find_player_near(row(), col());
 
-    if (player_search.is_found) {
+    if (player_search.is_found ) {
+        if(curr_tp - last_updated_ < attack_speed_) {
+            return;//wait
+        }
         map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
         direction(coord_to_direction(row(), col(), player_search.row, player_search.col));
+        last_updated_ = curr_tp;
         return;
     }
 
+    double path = get_path(duration_cast<milliseconds>(curr_tp - last_updated_));
+
+    if (path < 1) {
+        return;
+    }
+
+    last_updated_ = curr_tp;
     direction(RndHelper::rand_direction());
 
     if (direction_ == Directions::STAY) {
         return;
     }
 
-    int desired_row = row();
     int desired_col = col();
+    int desired_row = row();
 
     direction_to_coord(direction(), desired_row, desired_col);
 
@@ -139,7 +152,6 @@ void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::
         return;
     }
 
-
     map->get_cell(desired_row, desired_col)->actor()->collide(*this, map);
 }
 
@@ -153,12 +165,12 @@ void game::Actor::collide(game::MainCharActor& other, const shared_ptr<game::Map
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
-void game::Actor::collide(game::EnemyActor &other, const shared_ptr<game::Map> map)
+void game::Actor::collide(game::EnemyActor& other, const shared_ptr<game::Map> map)
 {
     this->collide(*static_cast<ActiveActor*>(&other), map);
 }
 
-void game::Actor::direction_to_coord(game::Directions direction, int &row, int &col)
+void game::Actor::direction_to_coord(game::Directions direction, int& row, int& col)
 {
     switch (direction) {
         case Directions::UP:
@@ -237,6 +249,11 @@ void game::Actor::restore_mana(int amount)
     }
 }
 
+double game::Actor::get_path(const std::chrono::milliseconds& delta_t) const
+{
+    return move_speed_ * delta_t.count() / 1000.0;
+}
+
 void game::EnemyActor::collide(game::MainCharActor& other, const shared_ptr<game::Map> map)
 {
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
@@ -259,16 +276,29 @@ void game::TargetActor::collide(game::MainCharActor& other, const shared_ptr<gam
     EventManager::instance().add_target_reached();
 }
 
-void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
+void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game::Map> map, const time_point<steady_clock>& curr_tp)
 {
     MapSearchResult player_search = map->find_player_near(row(), col());
 
     if (player_search.is_found) {
+        if(curr_tp - last_updated_ < attack_speed_) {
+            return;//wait
+        }
         map->get_cell(player_search.row, player_search.col)->actor()->collide(*this, map);
+        last_updated_ = curr_tp;
         return;
     }
 
+    double path = get_path(duration_cast<milliseconds>(curr_tp - last_updated_));
+
+    if (path < 1) {
+        return;
+    }
+
+    last_updated_ = curr_tp;
+
     if (direction_ == Directions::STAY) {
+        direction(RndHelper::rand_direction());
         return;
     }
     
@@ -346,9 +376,9 @@ void game::ActiveActor::shoot()
     weapon()->shoot(row(), col(), direction());
 }
 
-game::ActiveActor::ActiveActor(int row, int col, game::Directions direction,  char icon, int hit_points,
+game::ActiveActor::ActiveActor(int row, int col, double speed, game::Directions direction,  char icon, int hit_points,
                                int attack_damage, short color_pair, int max_mana)
-        :  Actor(row, col, icon, hit_points, attack_damage, color_pair, max_mana), direction_(direction)
+        :  Actor(row, col, speed, icon, hit_points, attack_damage, color_pair, max_mana), direction_(direction)
 {
     weapon_ = std::make_shared<StoneWeapon>();
 }
@@ -364,8 +394,17 @@ void game::ActiveActor::collide(game::ProjectileActor& other, const shared_ptr<g
     EventManager::instance().add_damage(other.get_ptr(), get_ptr(), other.attack_damage());
 }
 
-void game::ProjectileActor::move(game::GameControls controls, const shared_ptr<game::Map> map)
+void game::ProjectileActor::move(game::GameControls controls, const shared_ptr<game::Map> map, const time_point<steady_clock>& curr_tp)
 {
+
+    double path = get_path(duration_cast<milliseconds>(curr_tp - last_updated_));
+
+    if (path < 1) {
+        return;
+    }
+
+    last_updated_ = curr_tp;
+
     int desired_row = row();
     int desired_col = col();
 

@@ -5,6 +5,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <chrono>
 #include "statuses.h"
 #include "map.h"
 #include "colors.h"
@@ -39,10 +40,10 @@ class ProjectileActor;
 class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
-    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
+    explicit Actor(int row = 0, int col = 0, double speed = 1.0, char icon = '-', int max_hp = 100,
                    int attack_damage = 0, short color_pair = Colors::DEFAULT,
                    int max_mana = 0)
-            : row_(row), col_(col), map_icon_(icon), max_hp_(max_hp), curr_hp_(max_hp),
+            : row_(row), col_(col), move_speed_{speed}, map_icon_(icon), max_hp_(max_hp), curr_hp_(max_hp),
               attack_damage_{attack_damage}, color_pair_(color_pair), max_mana_(max_mana), curr_mana_(max_mana) {}
     //ASK: ???
     virtual ~Actor() = default;
@@ -58,7 +59,8 @@ public:
 
     void set_pos(int r_row, int r_col) { row(r_row); col(r_col); }
 
-    virtual void move(GameControls controls, const std::shared_ptr<Map> map) {}
+    virtual void move(GameControls controls, const std::shared_ptr<Map> map,
+                      const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) {}
 
     virtual void collide(Actor& other, const std::shared_ptr<Map> map) {};
     virtual void collide(ActiveActor& other, const std::shared_ptr<Map> map);
@@ -89,7 +91,7 @@ public:
 
     virtual short color_pair() const { return color_pair_; }
     //TODO: find a better place
-    static void direction_to_coord(Directions direction, int& row, int& col) ;
+    static void direction_to_coord(Directions direction, int& row, int& col);
     static Directions coord_to_direction(int s_row, int s_col, int d_row, int d_col);
 
     bool is_made_turn() const { return is_made_turn_; }
@@ -98,6 +100,11 @@ public:
 protected:
     int row_;
     int col_;
+    //cells per second
+    double move_speed_;
+    std::chrono::milliseconds attack_speed_ = std::chrono::milliseconds(1000);//msek
+    std::chrono::time_point<std::chrono::steady_clock> last_updated_ = std::chrono::steady_clock::now();
+
     char map_icon_;
     int max_hp_;
     int curr_hp_;
@@ -107,13 +114,15 @@ protected:
     int max_mana_;
     int curr_mana_;
 
+    double get_path(const std::chrono::milliseconds& delta_t) const;
+
 };
 
 
 class FloorActor : public Actor
 {
 public:
-    explicit FloorActor(int row = 0, int col = 0, char icon = 'F') : Actor(row, col, icon) {}
+    explicit FloorActor(int row = 0, int col = 0, char icon = 'F') : Actor(row, col, 0, icon) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 };
@@ -130,7 +139,7 @@ public:
 class EmptyActor : public Actor
 {
 public:
-    explicit EmptyActor(int row = 0, int col = 0, char icon = ' ') : Actor(row, col, icon) {}
+    explicit EmptyActor(int row = 0, int col = 0, char icon = ' ') : Actor(row, col, 0, icon) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
@@ -144,7 +153,7 @@ class Wall : public Actor
 public:
     explicit Wall(int row = 0, int col = 0, char icon = '#', int max_hp = 100,
             int attack_damage = 0, short colors_pair = Colors::FULL_WHITE)
-            : Actor(row, col, icon, max_hp, attack_damage, colors_pair) {}
+            : Actor(row, col, 0, icon, max_hp, attack_damage, colors_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(ActiveActor& other, const std::shared_ptr<Map> map) override { }
@@ -169,7 +178,7 @@ public:
 class ActiveActor : public Actor
 {
 public:
-    explicit ActiveActor(int row = 0, int col = 0, Directions direction = Directions::UP,
+    explicit ActiveActor(int row = 0, int col = 0, double speed = 1.0, Directions direction = Directions::UP,
                          char icon = 'A', int hit_points = 0,
                          int attack_damage = 0, short color_pair = Colors::DEFAULT, int max_mana = 500);
 
@@ -193,10 +202,11 @@ class MainCharActor : public ActiveActor
 {
 public:
     explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::STAY,
-                           char icon ='S', int hit_points = 1000, int attack_damage = 50, short color_pair = Colors::DEFAULT,
-                           int max_mana = 500);
+                           char icon ='S', int hit_points = 1000, int attack_damage = 50,
+                           short color_pair = Colors::DEFAULT, int max_mana = 500);
 
-    void move(GameControls controls, std::shared_ptr<Map> map) override;
+    void move(GameControls controls, std::shared_ptr<Map> map,
+              const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(EnemyActor& other, const std::shared_ptr<Map> map) override;
@@ -218,9 +228,9 @@ protected:
 class EnemyActor : public ActiveActor
 {
 public:
-    explicit EnemyActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'E', int hit_points = 0,
-                        int attack_damage = 100, short color_pair = Colors::DEFAULT)
-            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+    explicit EnemyActor(int row = 0, int col = 0, double speed = 1.0,  Directions direction = Directions::UP, char icon = 'E',
+                        int hit_points = 0, int attack_damage = 100, short color_pair = Colors::DEFAULT)
+            : ActiveActor(row, col, speed, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(EnemyActor& other, const std::shared_ptr<Map> map) override {};
@@ -233,10 +243,12 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, Directions direction = Directions::STAY, char icon = 'G', int hit_points = 100, int attack_damage = 20)
-            : EnemyActor(row, col, direction, icon, hit_points, attack_damage) {}
+    explicit GuardActor(int row = 0, int col = 0, double speed = 2.0, Directions direction = RndHelper::rand_direction(),
+                       char icon = 'G', int hit_points = 100, int attack_damage = 20)
+            : EnemyActor(row, col, speed, direction, icon, hit_points, attack_damage) {}
 
-    void move(GameControls controls, const std::shared_ptr<Map> map) override;
+    void move(GameControls controls, const std::shared_ptr<Map> map,
+              const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
 //    void move(GameControls control, Map& map) override;
 
@@ -246,20 +258,19 @@ public:
 class TeacherActor : public EnemyActor
 {
 public:
-    explicit TeacherActor(int row = 0, int col = 0, Directions direction = RndHelper::rand_direction(),
+    explicit TeacherActor(int row = 0, int col = 0, double speed = 3.0, Directions direction = RndHelper::rand_direction(),
             char icon = 'T', int hit_points = 1000, int attack_damage = 25, short color_pair = Colors::DEFAULT)
-             : EnemyActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+             : EnemyActor(row, col, speed, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
-    void move(GameControls controls, const std::shared_ptr<Map> map) override;
+    void move(GameControls controls, const std::shared_ptr<Map> map,
+              const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;
 };
 
 //TODO: should be floor actor
 class PickupActor : public Wall
 {
 public:
-//    explicit Actor(int row = 0, int col = 0, char icon = '-', int max_hp = 100,
-//                   int attack_damage = 0, short color_pair = Colors::DEFAULT)
     explicit PickupActor(int row = 0, int col = 0, char icon = 'P', int max_hp = 1,
                          int attack_damage = 0, short color_pair = Colors::DEFAULT)
             : Wall(row, col, icon, max_hp, attack_damage, color_pair) {};
@@ -300,14 +311,16 @@ protected:
 class ProjectileActor : public ActiveActor
 {
 public:
-    explicit ProjectileActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'p', int hit_points = 1, int attack_damage = 100,
-                             short color_pair = Colors::DEFAULT)
-            : ActiveActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+    explicit ProjectileActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'p',
+                             int hit_points = 1, int attack_damage = 100, short color_pair = Colors::DEFAULT,
+                             double speed = 1.0)
+            : ActiveActor(row, col, speed, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
     void collide(ActiveActor& other, const std::shared_ptr<Map> map) override;
     void collide(ProjectileActor& other, const std::shared_ptr<Map> map) override;
-    void move(GameControls controls, const std::shared_ptr<Map> map) override;
+    void move(GameControls controls, const std::shared_ptr<Map> map,
+              const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;
 
     bool is_transparent() const override { return is_dead(); }
 };
@@ -315,9 +328,9 @@ public:
 class FireballActor : public ProjectileActor
 {
 public:
-    explicit FireballActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = '*', int hit_points = 1,
-                           int attack_damage = 100, short color_pair = Colors::RED_BLACK)
-            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+    explicit FireballActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = '*',
+                           int hit_points = 1, int attack_damage = 100, short color_pair = Colors::RED_BLACK)
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, 10.0) {}
 };
 
 class StoneActor : public ProjectileActor
@@ -325,7 +338,7 @@ class StoneActor : public ProjectileActor
 public:
     explicit StoneActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'o', int hit_points = 1,
                            int attack_damage = 500, short color_pair = Colors::CYAN_BLACK)
-            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair) {}
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, 6.0) {}
 };
 
 template <class BaseT>

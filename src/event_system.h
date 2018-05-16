@@ -18,7 +18,8 @@ public:
     //Meyer's singleton
     static EventManager& instance();
     void trigger_all(Game& game, std::shared_ptr<Map> map);
-    void move_projectiles(Game& game, std::shared_ptr<Map> map, GameControls control);
+    void move_projectiles(Game& game, std::shared_ptr<Map> map, GameControls control,
+                          const std::chrono::time_point<std::chrono::steady_clock>& curr_tp);
     void spawn_projectiles(Game& game, std::shared_ptr<Map> map);
 
     void manage_projectile(std::shared_ptr<ProjectileActor> projectile);

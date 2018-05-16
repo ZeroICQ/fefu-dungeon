@@ -60,10 +60,11 @@ void game::EventManager::add_projectile(std::shared_ptr<game::ProjectileActor> p
             new SpawnProjectileEvent(projectile, projectile->row(), projectile->col()));
 }
 
-void game::EventManager::move_projectiles(game::Game& game, std::shared_ptr<game::Map> map, GameControls control)
+void game::EventManager::move_projectiles(game::Game& game, std::shared_ptr<game::Map> map, GameControls control,
+                                          const std::chrono::time_point<std::chrono::steady_clock>& curr_tp)
 {
     for (auto i = projectiles_.begin(); i != projectiles_.end();) {
-        i->get()->move(control, map);
+        i->get()->move(control, map, curr_tp);
         i->get()->is_made_turn(true);
         trigger_all(game, map);
 
