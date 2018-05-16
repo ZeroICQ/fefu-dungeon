@@ -330,7 +330,7 @@ of the @i{libconfig++} library.
 @node Configuration Files, The C API, Introduction, Top
 @comment  node-name,  next,  previous,  up
 @menu
-* Settings::
+* Cfg::
 * Groups::
 * Arrays::
 * Lists::
@@ -412,7 +412,7 @@ application:
 @sp 1
 
 @cindex path
-Settings can be uniquely identified within the configuration by a
+Cfg can be uniquely identified within the configuration by a
 @dfn{path}. The path is a dot-separated sequence of names, beginning
 at a top-level group and ending at the setting itself. Each name in
 the path is the name of a setting; if the setting has no name because
@@ -450,9 +450,9 @@ is mapped to @code{int} in C and @code{bool} in C++.
 The following sections describe the elements of the configuration file
 grammar in additional detail.
 
-@node Settings, Groups, , Configuration Files
+@node Cfg, Groups, , Configuration Files
 @comment  node-name,  next,  previous,  up
-@section Settings
+@section Cfg
 
 A setting has the form:
 
@@ -466,7 +466,7 @@ The trailing semicolon is optional. Whitespace is not significant.
 
 The value may be a scalar value, an array, a group, or a list.
 
-@node Groups, Arrays, Settings, Configuration Files
+@node Groups, Arrays, Cfg, Configuration Files
 @comment  node-name,  next,  previous,  up
 @section Groups
 
@@ -2058,7 +2058,7 @@ consider assigning the return value to a @code{std::string}.
 @deftypemethod Setting {std::string} getPath () const
 
 This method returns the complete dot-separated path to the
-setting. Settings which do not have a name (list and array elements)
+setting. Cfg which do not have a name (list and array elements)
 are represented by their index in square brackets.
 
 @end deftypemethod

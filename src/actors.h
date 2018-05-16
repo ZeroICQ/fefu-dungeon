@@ -10,6 +10,7 @@
 #include "map.h"
 #include "colors.h"
 #include "weapons.h"
+#include "cfg_loader.h"
 
 namespace game {
 
@@ -102,7 +103,7 @@ protected:
     int col_;
     //cells per second
     double move_speed_;
-    std::chrono::milliseconds attack_speed_ = std::chrono::milliseconds(1000);//msek
+    std::chrono::milliseconds attack_speed_{1000};//msek
     std::chrono::time_point<std::chrono::steady_clock> last_updated_ = std::chrono::steady_clock::now();
 
     char map_icon_;
@@ -202,8 +203,11 @@ class MainCharActor : public ActiveActor
 {
 public:
     explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::STAY,
-                           char icon ='S', int hit_points = 1000, int attack_damage = 50,
-                           short color_pair = Colors::DEFAULT, int max_mana = 500);
+                           char icon = Cfg::getMainChar().icon,
+                           int hit_points = Cfg::getMainChar().max_hp,
+                           int attack_damage = Cfg::getMainChar().attack_damage,
+                           short color_pair = Cfg::getMainChar().color_pair,
+                           int max_mana = Cfg::getMainChar().max_mana);
 
     void move(GameControls controls, std::shared_ptr<Map> map,
               const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;

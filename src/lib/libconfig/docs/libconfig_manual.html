@@ -83,7 +83,7 @@ Version 1.7.2<br>
   </ul></li>
   <li><a name="toc-Configuration-Files-1" href="#Configuration-Files">2 Configuration Files</a>
   <ul class="no-bullet">
-    <li><a name="toc-Settings-1" href="#Settings">2.1 Settings</a></li>
+    <li><a name="toc-Settings-1" href="#Settings">2.1 Cfg</a></li>
     <li><a name="toc-Groups-1" href="#Groups">2.2 Groups</a></li>
     <li><a name="toc-Arrays-1" href="#Arrays">2.3 Arrays</a></li>
     <li><a name="toc-Lists-1" href="#Lists">2.4 Lists</a></li>
@@ -445,7 +445,7 @@ of the <i>libconfig++</i> library.
 Next: <a href="#The-C-API" accesskey="n" rel="next">The C API</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Function-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Settings" accesskey="1">Settings</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Settings" accesskey="1">Cfg</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Groups" accesskey="2">Groups</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -539,7 +539,7 @@ application:
 <br>
 
 <a name="index-path"></a>
-<p>Settings can be uniquely identified within the configuration by a
+<p>Cfg can be uniquely identified within the configuration by a
 <em>path</em>. The path is a dot-separated sequence of names, beginning
 at a top-level group and ending at the setting itself. Each name in
 the path is the name of a setting; if the setting has no name because
@@ -584,7 +584,7 @@ grammar in additional detail.
 Next: <a href="#Groups" accesskey="n" rel="next">Groups</a>, Up: <a href="#Configuration-Files" accesskey="u" rel="up">Configuration Files</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Function-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Settings-1"></a>
-<h3 class="section">2.1 Settings</h3>
+<h3 class="section">2.1 Cfg</h3>
 
 <p>A setting has the form:
 </p>
@@ -602,7 +602,7 @@ Next: <a href="#Groups" accesskey="n" rel="next">Groups</a>, Up: <a href="#Confi
 <a name="Groups"></a>
 <div class="header">
 <p>
-Next: <a href="#Arrays" accesskey="n" rel="next">Arrays</a>, Previous: <a href="#Settings" accesskey="p" rel="prev">Settings</a>, Up: <a href="#Configuration-Files" accesskey="u" rel="up">Configuration Files</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Function-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Arrays" accesskey="n" rel="next">Arrays</a>, Previous: <a href="#Settings" accesskey="p" rel="prev">Cfg</a>, Up: <a href="#Configuration-Files" accesskey="u" rel="up">Configuration Files</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Function-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Groups-1"></a>
 <h3 class="section">2.2 Groups</h3>
@@ -2322,7 +2322,7 @@ consider assigning the return value to a <code>std::string</code>.
 <dt><a name="index-getPath-on-Setting"></a>Method on Setting: <em>std::string</em> <strong>getPath</strong> <em>() const</em></dt>
 <dd>
 <p>This method returns the complete dot-separated path to the
-setting. Settings which do not have a name (list and array elements)
+setting. Cfg which do not have a name (list and array elements)
 are represented by their index in square brackets.
 </p>
 </dd></dl>
