@@ -11,7 +11,6 @@ game::EventManager::EventManager()
 {
     spawn_projectile_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
 
-
     move_event_pool_ = std::make_shared<std::deque<std::shared_ptr<Event>>>();
     heal_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();
     mana_restore_event_pool_= std::make_shared<std::deque<std::shared_ptr<Event>>>();

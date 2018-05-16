@@ -13,7 +13,7 @@ public:
     static const short WHITE_CYAN = 4;
     static const short WHITE_RED = 5;
     static const short WHITE_BLUE = 6;
-    static const short CYAN_BLACK = 67;
+    static const short CYAN_BLACK = 7;
 
     static void initialize();
 private:

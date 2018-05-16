@@ -16,7 +16,11 @@ game::Cfg &game::Cfg::instance()
 
 game::Cfg::Cfg(string config_path)
 {
-    vector<string> actors = {"MainCharactor"};
+    vector<string> actors = {"Mainchar",
+                             "Guard",
+                             "Teacher",
+                             "Fireball",
+                             "Stone"};
 
     cfg_.readFile(config_path.c_str());
 

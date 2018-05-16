@@ -103,7 +103,8 @@ protected:
     int col_;
     //cells per second
     double move_speed_;
-    std::chrono::milliseconds attack_speed_{1000};//msek
+    //TODO: move to cfg
+    std::chrono::milliseconds attack_speed_{500};//msek
     std::chrono::time_point<std::chrono::steady_clock> last_updated_ = std::chrono::steady_clock::now();
 
     char map_icon_;
@@ -203,11 +204,11 @@ class MainCharActor : public ActiveActor
 {
 public:
     explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::STAY,
-                           char icon = Cfg::getMainChar().icon,
-                           int hit_points = Cfg::getMainChar().max_hp,
+                           char icon         = Cfg::getMainChar().icon,
+                           int hit_points    = Cfg::getMainChar().max_hp,
                            int attack_damage = Cfg::getMainChar().attack_damage,
-                           short color_pair = Cfg::getMainChar().color_pair,
-                           int max_mana = Cfg::getMainChar().max_mana);
+                           short color_pair  = Cfg::getMainChar().color_pair,
+                           int max_mana      = Cfg::getMainChar().max_mana);
 
     void move(GameControls controls, std::shared_ptr<Map> map,
               const std::chrono::time_point<std::chrono::steady_clock>& curr_tp) override;
@@ -247,8 +248,12 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, double speed = 2.0, Directions direction = RndHelper::rand_direction(),
-                       char icon = 'G', int hit_points = 100, int attack_damage = 20)
+    explicit GuardActor(int row = 0, int col = 0,
+                        double speed         = Cfg::getGuard().speed,
+                        Directions direction = RndHelper::rand_direction(),
+                        char icon            = Cfg::getGuard().icon,
+                        int hit_points       = Cfg::getGuard().max_hp,
+                        int attack_damage    = Cfg::getGuard().attack_damage)
             : EnemyActor(row, col, speed, direction, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map,
@@ -262,8 +267,13 @@ public:
 class TeacherActor : public EnemyActor
 {
 public:
-    explicit TeacherActor(int row = 0, int col = 0, double speed = 3.0, Directions direction = RndHelper::rand_direction(),
-            char icon = 'T', int hit_points = 1000, int attack_damage = 25, short color_pair = Colors::DEFAULT)
+    explicit TeacherActor(int row = 0, int col = 0,
+                          double speed         = Cfg::getTeacher().speed,
+                          Directions direction = RndHelper::rand_direction(),
+                          char icon            = Cfg::getTeacher().icon,
+                          int hit_points       = Cfg::getTeacher().max_hp,
+                          int attack_damage    = Cfg::getTeacher().attack_damage,
+                          short color_pair     = Cfg::getTeacher().color_pair)
              : EnemyActor(row, col, speed, direction, icon, hit_points, attack_damage, color_pair) {}
 
     void collide(Actor& other, const std::shared_ptr<Map> map) override { other.collide(*this, map); }
@@ -332,17 +342,27 @@ public:
 class FireballActor : public ProjectileActor
 {
 public:
-    explicit FireballActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = '*',
-                           int hit_points = 1, int attack_damage = 100, short color_pair = Colors::RED_BLACK)
-            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, 10.0) {}
+    explicit FireballActor(int row = 0, int col = 0,
+                           Directions direction = Directions::UP,
+                           char icon            = Cfg::getFireball().icon,
+                           int hit_points       = 1,
+                           int attack_damage    = Cfg::getFireball().attack_damage,
+                           short color_pair     =  Cfg::getFireball().color_pair,
+                           double speed         = Cfg::getFireball().speed)
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, speed) {}
 };
 
 class StoneActor : public ProjectileActor
 {
 public:
-    explicit StoneActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'o', int hit_points = 1,
-                           int attack_damage = 500, short color_pair = Colors::CYAN_BLACK)
-            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, 6.0) {}
+    explicit StoneActor(int row = 0, int col = 0,
+                        Directions direction = Directions::UP,
+                        char icon         = Cfg::getStone().icon,
+                        int hit_points    = 1,
+                        int attack_damage = Cfg::getStone().attack_damage,
+                        short color_pair  = Cfg::getStone().color_pair,
+                        double speed      = Cfg::getStone().speed)
+            : ProjectileActor(row, col, direction, icon, hit_points, attack_damage, color_pair, speed) {}
 };
 
 template <class BaseT>
