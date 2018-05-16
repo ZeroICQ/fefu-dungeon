@@ -20,9 +20,9 @@ void game::Game::load_next_level()
 void game::Game::handle_controls(game::GameControls control)
 {
     //stub for not realtime
-    if (control == game::GameControls::idle) {
-        return;
-    }
+//    if (control == game::GameControls::idle) {
+//        return;
+//    }
 
     EventManager::instance().move_projectiles(*this, map_, control);
 

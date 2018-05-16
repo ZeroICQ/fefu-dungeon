@@ -96,7 +96,7 @@ static void __config_locale_override(void)
 
 #else
 
-#warning "No way to modify calling thread's locale!"
+  #warning "No way to modify calling thread's locale!"
 
 #endif
 }

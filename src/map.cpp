@@ -53,6 +53,10 @@ bool game::Map::is_inbound(int row, int col) const
 
 void game::Map::move_actor(int row_from, int col_from, int row_to, int col_to, shared_ptr<game::Actor> replace_actor)
 {
+    if (row_from == row_to && col_from == col_to) {
+        return;
+    }
+
     if (!replace_actor) {
         replace_actor = std::make_shared<EmptyActor>(row_from, col_from);
     }

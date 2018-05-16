@@ -55,6 +55,8 @@ void game::MainCharActor::move(game::GameControls controls, shared_ptr<game::Map
         case GameControls::move_left:
             direction(Directions::LEFT);
             break;
+        case GameControls::idle:
+            return;
         default:
             break;
     }
@@ -117,6 +119,10 @@ void game::GuardActor::move(game::GameControls controls, const shared_ptr<game::
 
     direction(RndHelper::rand_direction());
 
+    if (direction_ == Directions::STAY) {
+        return;
+    }
+
     int desired_row = row();
     int desired_col = col();
 
@@ -166,6 +172,8 @@ void game::Actor::direction_to_coord(game::Directions direction, int &row, int &
             break;
         case Directions::LEFT:
             col -= 1;
+            break;
+        default:
             break;
     }
 }
@@ -260,6 +268,10 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
         return;
     }
 
+    if (direction_ == Directions::STAY) {
+        return;
+    }
+    
     //10% chance shooting
     if (RndHelper::rand_yes_no(0.10) == YesOrNo::YES) {
         shoot();
@@ -293,7 +305,7 @@ void game::TeacherActor::move(game::GameControls controls, const shared_ptr<game
 
 game::Directions game::RndHelper::rand_direction()
 {
-    int rnd_direction = rand() % 4;
+    int rnd_direction = rand() % 5;
 
     switch (rnd_direction) {
         case 0:
@@ -304,6 +316,8 @@ game::Directions game::RndHelper::rand_direction()
             return Directions::DOWN;
         case 3:
             return Directions::RIGHT;
+        case 4:
+            return Directions::STAY;
         default:
             return Directions::UP;
     }

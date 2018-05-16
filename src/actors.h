@@ -12,7 +12,7 @@
 
 namespace game {
 
-enum class Directions {UP, RIGHT, DOWN, LEFT};
+enum class Directions {UP, RIGHT, DOWN, LEFT, STAY};
 enum class YesOrNo {YES, NO};
 
 class RndHelper
@@ -94,6 +94,7 @@ public:
 
     bool is_made_turn() const { return is_made_turn_; }
     void is_made_turn(bool val)  { is_made_turn_ = val; }
+
 protected:
     int row_;
     int col_;
@@ -191,7 +192,7 @@ protected:
 class MainCharActor : public ActiveActor
 {
 public:
-    explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::UP,
+    explicit MainCharActor(int row = 0, int col = 0, game::Directions direction = Directions::STAY,
                            char icon ='S', int hit_points = 1000, int attack_damage = 50, short color_pair = Colors::DEFAULT,
                            int max_mana = 500);
 
@@ -232,7 +233,7 @@ public:
 class GuardActor : public EnemyActor
 {
 public:
-    explicit GuardActor(int row = 0, int col = 0, Directions direction = Directions::UP, char icon = 'G', int hit_points = 100, int attack_damage = 20)
+    explicit GuardActor(int row = 0, int col = 0, Directions direction = Directions::STAY, char icon = 'G', int hit_points = 100, int attack_damage = 20)
             : EnemyActor(row, col, direction, icon, hit_points, attack_damage) {}
 
     void move(GameControls controls, const std::shared_ptr<Map> map) override;

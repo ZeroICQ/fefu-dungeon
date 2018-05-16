@@ -8,7 +8,7 @@ namespace game {
 class MapLoader {
 public:
     MapLoader() : level_dir("../levels/"),
-                  level_filenames({"test_1", "test_big", "test_small"}) {};
+                  level_filenames({"test_2", "test_1", "test_big", "test_small"}) {};
 
     std::shared_ptr<Map> load_map(int level) const;
 
